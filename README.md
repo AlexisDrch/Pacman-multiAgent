@@ -18,10 +18,10 @@ Environment agent takes care of linking all the agents involves in the game. Its
 Monsters agents are independant and random steppers in the grids. They react to the tick sent by environment and responds with a random move (new position in the grid) regarding their initial position.
 
 #### Traveler
-Traveler is the player. Here its the entity that move across the grid and try to survive from the monsters. It moves (new position) regarding a bunch of analyses made by ArtificialIntelligence agent. It can ch
+Traveler is the player. Here its the entity that moves across the grid and try to survive from the monsters. It moves (new position) regarding a bunch of analyses made by ArtificialIntelligence agent. If a traveler cross the same step as a monster, he dies.
 
 #### ArtificialIntelligence (AI)
-AI agents are called by the traveler. This agent uses differents analysers agent to analyse the environment and get the best move for the traveler.
+AI agents are called by the traveler. This agent uses different analyser agents to analyse the environment, compares their response and find the best move for the traveler.
 
 #### AnalyserAgent
-Thoses agents propose differents move to the AI agent regarding the environment's state.
+Thoses agents propose different moves to the AI agent regarding the environment's state.
