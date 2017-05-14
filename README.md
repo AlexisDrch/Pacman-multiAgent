@@ -1,2 +1,24 @@
 # Pacman-multiAgent
-A multi agent platform simulating an IA running a pacman like game.
+A multi agent platform simulating an IA running a pacman-like game.
+
+## Architecture
+Our platform runs a Multi Agent system wich involves differents agents asynchronously in order to simulate a complete environment for a traveler (the pacman) to move and survive through the gid.
+
+### Agents
+#### Engine
+Engine agent can be considered as a ticker that will trigger continously the environment to act. It sets up a bunch of setting (subscription, initialisation) before starting the ticker.
+
+### Environment
+Environment agent takes care of linking all the agents involves in the game. Its main role consist in reacting to each tick so it can ask all the entities to move accordingly. Each of the entities move corresponds to an update in the grid encapsulated in environment agent.
+
+### Monsters
+Monsters agents are independant and random steppers in the grids. They react to the tick sent by environment and responds with a random move (new position in the grid) regarding their initial position.
+
+### Traveler
+Traveler is the player. Here its the entity that move across the grid and try to survive from the monsters. It moves (new position) regarding a bunch of analyses made by ArtificialIntelligence agent. It can ch
+
+### ArtificialIntelligence (AI)
+AI agents are called by the traveler. This agent uses differents analysers agent to analyse the environment and get the best move for the traveler.
+
+### AnalyserAgent
+Thoses agents propose differents move to the AI agent regarding the environment's state.
