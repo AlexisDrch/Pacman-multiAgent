@@ -2,7 +2,10 @@
 A multi agent platform simulating an IA running a pacman-like game.
 
 ## Architecture
-Our platform runs a Multi Agent system wich involves differents agents asynchronously in order to simulate a complete environment for a traveler (the pacman) to move and survive through the gid.
+Our platform runs a Multi Agent system wich involves differents agents asynchronously in order to simulate a complete environment for a traveler (the pacman) to move and survive through the gid using artificial intelligence.
+
+![alt text](https://github.com/AlexisDrch/Pacman-multiAgent/blob/master/Untitled%20Diagram.jpg)
+
 
 ### Agents
 #### Engine
