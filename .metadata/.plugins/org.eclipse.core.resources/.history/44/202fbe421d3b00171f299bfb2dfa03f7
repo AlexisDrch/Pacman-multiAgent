@@ -1,0 +1,7 @@
+package models;
+
+public class Cellule {
+	public int value = 0;
+	public int ligne;
+	public int colonne;
+}

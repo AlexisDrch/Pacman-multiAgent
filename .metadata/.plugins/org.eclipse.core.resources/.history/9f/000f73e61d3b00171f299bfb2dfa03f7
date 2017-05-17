@@ -1,0 +1,5 @@
+package models;
+
+public class Grid {
+	public Cellule[][] grid = new Cellule[9][9];
+}

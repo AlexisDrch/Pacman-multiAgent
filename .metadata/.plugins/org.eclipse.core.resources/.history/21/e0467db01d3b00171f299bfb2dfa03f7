@@ -1,0 +1,20 @@
+package models;
+
+public class Cellule {
+	public int ligne;
+	public int colonne;
+	
+	public Cellule (int nl, int nc) {
+		this.ligne = nl;
+		this.colonne = nc;
+	}
+	
+	public void setValue(int val) {
+		this.value = val;
+	}
+	
+	public int getValue() {
+		return this.value;
+	}
+}
+
