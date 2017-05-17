@@ -21,4 +21,4 @@ Traveler is the player. Here its the entity that move across the grid and try to
 AI agents are called by the traveler. This agent uses differents analysers agent to analyse the environment and get the best move for the traveler.
 
 ### AnalyserAgent
-Thoses agents propose differents move to the AI agent regarding the environment's state.
+Thoses agents propose differents move to the AI agent regarding the environment's state. pour commit
