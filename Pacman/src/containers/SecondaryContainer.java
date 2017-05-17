@@ -1,6 +1,6 @@
 package containers;
 
-import containers.models.Constants;
+import models.Constants;
 import jade.core.ProfileImpl;
 import jade.core.Runtime;
 import jade.wrapper.AgentContainer;
