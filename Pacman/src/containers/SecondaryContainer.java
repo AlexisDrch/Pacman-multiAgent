@@ -34,7 +34,7 @@ public class SecondaryContainer {
 	  		
 			cc = rt.createAgentContainer(p);
 			
-			// generate 1 Environment Agent
+			/* generate 1 Environment Agent
 			ac = cc.createNewAgent(Constants.ENVIRONMENT_DESCRIPTION, "sudoku.Agents.EnvAgent", null);
 			ac.start();
 			
@@ -47,7 +47,7 @@ public class SecondaryContainer {
 				String agent_name = String.valueOf("Analyser" + (i+1));
 				ac = cc.createNewAgent(agent_name, "sudoku.Agents.AnalyseAgent", null);
 				ac.start();
-			}
+			}*/
 			
 	  	  } catch(Exception ex) {
 	  		  ex.printStackTrace();

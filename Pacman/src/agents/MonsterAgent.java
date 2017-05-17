@@ -1,4 +1,4 @@
-package agent;
+package agents;
 
 import java.util.Random;
 import jade.core.AID;
@@ -11,24 +11,20 @@ import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
-import massage.InformMessage;
-import massage.SuscribeMessage;
-import model.FonctionSpace;
-import model.ListeValeur;
-import models.Cellule;
+import models.Cell;
+import models.Utils;
 
 public class MonsterAgent extends Agent {
 
-	public Cellule position;  //Abscisse 
-	
-	public int index_monster_agent //Numero de l'agent 
+	public Cell position; 
 	
 	@Override
 	protected void setup() {
+		Random rand = new Random(); 
 		register();
 		System.out.println(getLocalName() + "--> Installed");
 		Object[] args = getArguments();
-		position = new Cellule() {line = random.nextInt(9 - 0 + 1) + 0, column = random.nextInt(9 - 0 + 1) + 0};
+		position = new Cell(0, rand.nextInt(9 - 0 + 1) + 0, rand.nextInt(9 - 0 + 1) + 0);
 		addBehaviour(new SuscribeBehaviour());	
 		addBehaviour(new AnalyseBehaviour());
 	}
@@ -46,27 +42,8 @@ public class MonsterAgent extends Agent {
 			fe.printStackTrace();
 		}
 	}
-		
-	private AID searchAgent(String type, String name) {
-		DFAgentDescription template = new DFAgentDescription();
-		ServiceDescription sd = new ServiceDescription();
-		sd.setType(type);
-		sd.setName(name);
-		template.addServices(sd);
-		AID receiver = null;
-		try {
-			DFAgentDescription[] result = DFService.search(this, template);
-			int n = result.length;
-			Random r = new Random();
-			if (n > 0) {
-				int v = r.nextInt(n);
-				receiver = result[v].getName();
-			}
-		} catch (FIPAException fe) {
-			fe.printStackTrace();
-		} 
-		return receiver;
-	}
+	
+	
 	
 	/*
 	 * Ce behaviour permet à chaque agent analyse de s'enregistrer auprès de l'agent de Simulation
