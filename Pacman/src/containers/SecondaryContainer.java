@@ -39,15 +39,15 @@ public class SecondaryContainer {
 			ac.start();
 						
 			
-			/* generate 1 Environment Agent
-			ac = cc.createNewAgent(Constants.ENVIRONMENT_DESCRIPTION, "sudoku.Agents.EnvAgent", null);
+			// generate 1 Environment Agent
+			ac = cc.createNewAgent(Constants.ENVIRONMENT_DESCRIPTION, "agents.Environment", null);
 			ac.start();
 			
 			
-			// generate 27 different Analyse Agents
-			for(i = 0 ; i < Constants.ANALYSE_AGENT_NUMBER ; i++) {
-				String agent_name = String.valueOf("Analyser" + (i+1));
-				ac = cc.createNewAgent(agent_name, "sudoku.Agents.AnalyseAgent", null);
+			/* generate X different Monster Agents
+			for(i = 0 ; i < Constants.MONSTER_INIT_NUMBER ; i++) {
+				Int num = (i+1);
+				ac = cc.createNewAgent(Constants.MONSTER_DESCRIPTION, "sudoku.Agents.AnalyseAgent", );
 				ac.start();
 			}*/
 			
