@@ -34,13 +34,15 @@ public class SecondaryContainer {
 	  		
 			cc = rt.createAgentContainer(p);
 			
+			// generate 1 Engine Agent 
+			ac = cc.createNewAgent(Constants.ENGINE_DESCRIPTION, "agents.Engine", null);
+			ac.start();
+						
+			
 			/* generate 1 Environment Agent
 			ac = cc.createNewAgent(Constants.ENVIRONMENT_DESCRIPTION, "sudoku.Agents.EnvAgent", null);
 			ac.start();
 			
-			// generate 1 Simulation Agent 
-			ac = cc.createNewAgent(Constants.SIMULATER_DESCRIPTION, "sudoku.Agents.SimulationAgent", null);
-			ac.start();
 			
 			// generate 27 different Analyse Agents
 			for(i = 0 ; i < Constants.ANALYSE_AGENT_NUMBER ; i++) {
