@@ -44,12 +44,14 @@ public class SecondaryContainer {
 			ac.start();
 			
 			
-			/* generate X different Monster Agents
-			for(i = 0 ; i < Constants.MONSTER_INIT_NUMBER ; i++) {
-				Int num = (i+1);
-				ac = cc.createNewAgent(Constants.MONSTER_DESCRIPTION, "sudoku.Agents.AnalyseAgent", );
+			// generate MONSTER_NUMBER different Monster Agents
+			for(i = 0 ; i < Constants.MONSTER_NUMBER ; i++) {
+				int num = (i+1);
+				// make each monster unique Monster_i
+				String monsterName = Constants.MONSTER_DESCRIPTION + "_" + String.valueOf(num);
+				ac = cc.createNewAgent(monsterName, "agents.Monster", null);
 				ac.start();
-			}*/
+			}
 			
 	  	  } catch(Exception ex) {
 	  		  ex.printStackTrace();

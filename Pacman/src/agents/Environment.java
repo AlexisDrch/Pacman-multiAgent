@@ -29,7 +29,7 @@ public class Environment extends Agent {
 
 	protected void setup() {
 		Utils.register(this, this.getLocalName());
-		System.out.println("\n" + getLocalName() + "--> Installed");
+		System.out.println("### " + getLocalName() + " is now ... Installed !");
 		// set value to agent
 		Object[] args = getArguments();
 		// int value = (int) args[0];
