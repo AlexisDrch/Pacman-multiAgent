@@ -1,5 +1,6 @@
 package agents;
 
+import org.json.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Map;
@@ -41,7 +42,8 @@ public class Monster extends Agent {
 		Random rand = new Random();
 		this.position = new Cell(0, rand.nextInt(9 - 0 + 1) + 0, rand.nextInt(9 - 0 + 1) + 0);
 		// add behaviours
-		addBehaviour(new SubscribeToEngineBehaviour());	
+		addBehaviour(new SubscribeToEngineBehaviour());
+		addBehaviour(new MoveBehaviour(this.position));
 	}
 	
 	
@@ -72,6 +74,45 @@ public class Monster extends Agent {
 	 * On its reception, the monster will randomly move according to the grid received and its position.
 	 * Then the new position is sent to the environment.
 	 */
+	private class MoveBehaviour extends CyclicBehaviour {
+		Cell superPosition;
+		
+		public MoveBehaviour(Cell position) {
+			this.superPosition = position;
+		}
+
+		@Override
+		public void action() {
+			// should receive a message that match console jade template : REQUEST
+			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.REQUEST);
+			ACLMessage message = myAgent.receive(mt);
+			
+			if (message != null) {
+				System.out.print("\nAgent " + myAgent.getLocalName() + " has just received a request to move --- ");
+				String jsonMessage = message.getContent(); // chaîne JSON
+				this.move(this.superPosition);
+				// send back new position
+				
+				// send(this.superPosition)
+				
+			} else {
+				block();
+			}
+		}
+
+		// todo
+		public void move(Cell oldPosition) {
+			int i;
+			int j;
+			Cell newPosition = oldPosition;
+			newPosition.ncolonne = (newPosition.ncolonne +1)%9 ;
+			newPosition.nligne = (newPosition.nligne +1)%9 ;
+			this.superPosition = newPosition;
+
+			System.out.print("\nAgent " + myAgent.getLocalName() + " has just received a request to move ---> " + newPosition.nligne + "," + newPosition.ncolonne);
+		}
+			
+	}
 	
 }
 		

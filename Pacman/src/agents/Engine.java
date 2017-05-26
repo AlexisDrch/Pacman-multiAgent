@@ -125,11 +125,10 @@ public class Engine extends Agent {
 				// send 27 analyser AID to environment agent
 				ACLMessage informMessage = new ACLMessage();
 				// add performative
-				informMessage.setPerformative(ACLMessage.INFORM);
+				informMessage.setPerformative(ACLMessage.REQUEST);
 				// add envir as a receiver
 				informMessage.addReceiver(environment);
 				// add analyser AID
-				informMessage.setContent((String) this.superAgentSubscription.get(i).toString());
 				// send message to environment Agent
 				send(informMessage);
 				System.out.print("\nAgent " + myAgent.getLocalName() + " has just sent " + this.superAgentSubscription.get(i).toString() + " to " + environment.getName());
