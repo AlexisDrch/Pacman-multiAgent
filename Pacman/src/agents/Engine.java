@@ -141,7 +141,7 @@ public class Engine extends Agent {
 					// add analyser AID
 					// send message to environment Agent
 					send(informMessage);
-					System.out.print("\nAgent " + myAgent.getLocalName() + " has just sent " + this.superAgentSubscription.get(i).toString() + " to " + environment.getName());
+					//System.out.print("\nAgent " + myAgent.getLocalName() + " has just sent " + this.superAgentSubscription.get(i).toString() + " to " + environment.getName());
 				} catch (JsonProcessingException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

@@ -97,7 +97,7 @@ public class Monster extends Agent {
 			
 			if (message != null) {
 				try {
-					System.out.print("\nAgent " + myAgent.getLocalName() + " has just received a request to move --- ");
+					//System.out.print("\nAgent " + myAgent.getLocalName() + " has just received a request to move --- ");
 					String jsonMessage = message.getContent(); // chaîne JSON
 					// parse grid received to move
 					Gson gson = new Gson();
@@ -142,7 +142,7 @@ public class Monster extends Agent {
 			this.superPosition = newPosition;
 			
 			
-			System.out.print("\nAgent " + myAgent.getLocalName() + " has just received a request to move ---> " + newPosition.nligne + "," + newPosition.ncolonne);
+			//System.out.print("\nAgent " + myAgent.getLocalName() + " has just received a request to move ---> " + newPosition.nligne + "," + newPosition.ncolonne);
 		}
 			
 	}

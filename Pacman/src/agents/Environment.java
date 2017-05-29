@@ -104,7 +104,7 @@ public class Environment extends Agent {
 					JSONObject obj = new JSONObject(jsonMessage);
 					String monsterXLocalName = obj.getString("localName");
 					String monsterXName = obj.getString("name");
-					System.out.println("\nAgent " + myAgent.getLocalName() + " has just received credentials of --- " + monsterXLocalName );
+					//System.out.println("\nAgent " + myAgent.getLocalName() + " has just received credentials of --- " + monsterXLocalName );
 					// should send a request message to according monsterX with supergrid as content
 					AID monsterX = Utils.searchForAgent(myAgent, monsterXLocalName);
 					ACLMessage requestMessage = new ACLMessage();
