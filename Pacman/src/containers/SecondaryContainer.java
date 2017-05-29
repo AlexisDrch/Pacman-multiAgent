@@ -49,7 +49,7 @@ public class SecondaryContainer {
 				int num = (i+1);
 				// make each monster unique Monster_i
 				String monsterName = Constants.MONSTER_DESCRIPTION + "_" + String.valueOf(num);
-				ac = cc.createNewAgent(monsterName, "agents.Monster", null);
+				ac = cc.createNewAgent(monsterName, "agents.Monster", new Object[]{num});
 				ac.start();
 			}
 			

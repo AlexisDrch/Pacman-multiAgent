@@ -35,7 +35,8 @@ import jade.lang.acl.UnreadableException;
 public class Monster extends Agent {
 	protected AID[] receiver;
 	protected int value;
-	protected Cell position;
+	public Cell position;
+	public Cell oldPosition;
 
 
 	protected void setup() {
@@ -43,13 +44,36 @@ public class Monster extends Agent {
 		System.out.println("### " + getLocalName() + " is now ... Installed !");
 		// set value to agent
 		Object[] args = getArguments();
-		// int value = (int) args[0];
+		this.value = (int) args[0];
 		// setup random position in grid 
 		Random rand = new Random();
+		this.oldPosition = null;
 		this.position = new Cell(0, rand.nextInt(9 - 0 + 1) + 0, rand.nextInt(9 - 0 + 1) + 0);
 		// add behaviours
 		addBehaviour(new SubscribeToEngineBehaviour());
-		addBehaviour(new MoveBehaviour(this.position));
+		addBehaviour(new MoveBehaviour());
+	}
+	
+	public void setValue(int newValue) {
+		this.value = newValue;
+	}
+	
+	public int getValue() {
+		return this.value;
+	}
+	
+	// to improve
+	public void move() {
+		int i;
+		int j;
+		this.oldPosition = null;
+		this.oldPosition = this.position;
+		// erasing monster at its previous position
+		this.oldPosition.setValue(0);
+		// moving to a new random position
+		Cell newPosition = new Cell(this.getValue(), (this.oldPosition.nligne + this.getValue())%9, (this.oldPosition.ncolonne + this.getValue()-1)%9);
+		this.position = newPosition;
+		//System.out.print("\nAgent " + myAgent.getLocalName() + " has just received a request to move ---> " + newPosition.nligne + "," + newPosition.ncolonne);
 	}
 	
 	
@@ -81,14 +105,7 @@ public class Monster extends Agent {
 	 * Then the new position is sent to the environment.
 	 */
 	private class MoveBehaviour extends CyclicBehaviour {
-		Cell superPosition;
-		Cell oldPosition;
 		
-		public MoveBehaviour(Cell position) {
-			this.superPosition = position;
-			this.oldPosition = this.superPosition;
-		}
-
 		@Override
 		public void action() {
 			// should receive a message that match console jade template : REQUEST and conversationId
@@ -100,19 +117,17 @@ public class Monster extends Agent {
 					//System.out.print("\nAgent " + myAgent.getLocalName() + " has just received a request to move --- ");
 					String jsonMessage = message.getContent(); // chaîne JSON
 					// parse grid received to move
-					Gson gson = new Gson();
-					Grid grid = gson.fromJson(jsonMessage, Grid.class);
-					this.move();
+					((Monster)myAgent).move();
 					// updating grid
-					grid.updateCell(this.oldPosition);
-					grid.updateCell(this.superPosition);
+					
 					ACLMessage updatedGridReply = message.createReply();
 					// add performative
 					updatedGridReply.setPerformative(ACLMessage.INFORM);
-					// add updated grid as content in json
+					// add new position as content in json
 					ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-					String jsonGrid = ow.writeValueAsString(grid);
-					updatedGridReply.setContent(jsonGrid);
+					CellsBag cellsbag = new CellsBag(((Monster)myAgent).oldPosition, ((Monster)myAgent).position);
+					String jsonCellsbag = ow.writeValueAsString(cellsbag);
+					updatedGridReply.setContent(jsonCellsbag);
 					// replying with new grid
 					send(updatedGridReply);
 				} catch (JsonProcessingException e) {
@@ -125,24 +140,6 @@ public class Monster extends Agent {
 			} else {
 				block();
 			}
-		}
-
-		// todo
-		public void move() {
-			int i;
-			int j;
-			this.oldPosition = this.superPosition;
-			// erasing monster at its previous position
-			this.oldPosition.setValue(0);
-			// moving to a new random position
-			Cell newPosition = this.oldPosition;
-			newPosition.ncolonne = (newPosition.ncolonne +1)%9 ;
-			newPosition.nligne = (newPosition.nligne +1)%9 ;
-			newPosition.setValue(1);
-			this.superPosition = newPosition;
-			
-			
-			//System.out.print("\nAgent " + myAgent.getLocalName() + " has just received a request to move ---> " + newPosition.nligne + "," + newPosition.ncolonne);
 		}
 			
 	}
