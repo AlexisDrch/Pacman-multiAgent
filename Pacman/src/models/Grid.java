@@ -1,4 +1,6 @@
 package models;
+import org.json.JSONArray;
+
 import models.*;
 
 
@@ -34,9 +36,17 @@ public class Grid {
 			System.out.println();
 		}
 	}
-
+	
+	public void updateCell(Cell newCell) {
+		if (newCell != null) {
+			int nc = newCell.ncolonne;
+			int nl = newCell.nligne;
+			grid[nl][nl] = newCell;
+		}
+	}
+	
 	// @todo
-	public void update(Cell[] cells) {
+	public void updateListOfCells(Cell[] cells) {
 		int j;
 		for(j = 0; j < cells.length; j++) {
 			System.out.println(" Old : " + this.grid[cells[j].nligne][cells[j].ncolonne].getValue() + " / new " + cells[j].getValue());

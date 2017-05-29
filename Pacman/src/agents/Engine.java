@@ -19,6 +19,11 @@ import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.util.leap.ArrayList;
+import org.codehaus.jackson.*;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 
 
 
@@ -122,16 +127,25 @@ public class Engine extends Agent {
 			// search for environment 
 			AID environment = Utils.searchForAgent(myAgent, Constants.ENVIRONMENT_DESCRIPTION);
 			for(i = 0; i < Constants.MONSTER_NUMBER; i ++) {
-				// send 27 analyser AID to environment agent
-				ACLMessage informMessage = new ACLMessage();
-				// add performative
-				informMessage.setPerformative(ACLMessage.REQUEST);
-				// add envir as a receiver
-				informMessage.addReceiver(environment);
-				// add analyser AID
-				// send message to environment Agent
-				send(informMessage);
-				System.out.print("\nAgent " + myAgent.getLocalName() + " has just sent " + this.superAgentSubscription.get(i).toString() + " to " + environment.getName());
+				try {
+					// send 27 analyser AID to environment agent
+					ACLMessage informMessage = new ACLMessage();
+					// set AID content formated in json
+					ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+					String json = ow.writeValueAsString(this.superAgentSubscription.get(i));
+					informMessage.setContent(json);
+					// add performative
+					informMessage.setPerformative(ACLMessage.REQUEST);
+					// add envir as a receiver
+					informMessage.addReceiver(environment);
+					// add analyser AID
+					// send message to environment Agent
+					send(informMessage);
+					System.out.print("\nAgent " + myAgent.getLocalName() + " has just sent " + this.superAgentSubscription.get(i).toString() + " to " + environment.getName());
+				} catch (JsonProcessingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
 	}

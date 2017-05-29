@@ -1,6 +1,12 @@
 package agents;
 
 import org.json.*;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.google.gson.Gson;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Map;
@@ -71,27 +77,48 @@ public class Monster extends Agent {
 	/**
 	 * Behaviour to move from one step to another
 	 * This behaviour will continuously wait for receiving a message from environment.
-	 * On its reception, the monster will randomly move according to the grid received and its position.
+	 * On its reception, the monster will randomly move according to the grid received and to its position.
 	 * Then the new position is sent to the environment.
 	 */
 	private class MoveBehaviour extends CyclicBehaviour {
 		Cell superPosition;
+		Cell oldPosition;
 		
 		public MoveBehaviour(Cell position) {
 			this.superPosition = position;
+			this.oldPosition = this.superPosition;
 		}
 
 		@Override
 		public void action() {
-			// should receive a message that match console jade template : REQUEST
-			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.REQUEST);
+			// should receive a message that match console jade template : REQUEST and conversationId
+			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.REQUEST).MatchConversationId(Constants.MONSTER_ENV_CONVERSATION_ID);
 			ACLMessage message = myAgent.receive(mt);
 			
 			if (message != null) {
-				System.out.print("\nAgent " + myAgent.getLocalName() + " has just received a request to move --- ");
-				String jsonMessage = message.getContent(); // chaîne JSON
-				this.move(this.superPosition);
-				// send back new position
+				try {
+					System.out.print("\nAgent " + myAgent.getLocalName() + " has just received a request to move --- ");
+					String jsonMessage = message.getContent(); // chaîne JSON
+					// parse grid received to move
+					Gson gson = new Gson();
+					Grid grid = gson.fromJson(jsonMessage, Grid.class);
+					this.move();
+					// updating grid
+					grid.updateCell(this.oldPosition);
+					grid.updateCell(this.superPosition);
+					ACLMessage updatedGridReply = message.createReply();
+					// add performative
+					updatedGridReply.setPerformative(ACLMessage.INFORM);
+					// add updated grid as content in json
+					ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+					String jsonGrid = ow.writeValueAsString(grid);
+					updatedGridReply.setContent(jsonGrid);
+					// replying with new grid
+					send(updatedGridReply);
+				} catch (JsonProcessingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				
 				// send(this.superPosition)
 				
@@ -101,14 +128,20 @@ public class Monster extends Agent {
 		}
 
 		// todo
-		public void move(Cell oldPosition) {
+		public void move() {
 			int i;
 			int j;
-			Cell newPosition = oldPosition;
+			this.oldPosition = this.superPosition;
+			// erasing monster at its previous position
+			this.oldPosition.setValue(0);
+			// moving to a new random position
+			Cell newPosition = this.oldPosition;
 			newPosition.ncolonne = (newPosition.ncolonne +1)%9 ;
 			newPosition.nligne = (newPosition.nligne +1)%9 ;
+			newPosition.setValue(1);
 			this.superPosition = newPosition;
-
+			
+			
 			System.out.print("\nAgent " + myAgent.getLocalName() + " has just received a request to move ---> " + newPosition.nligne + "," + newPosition.ncolonne);
 		}
 			
