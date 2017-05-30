@@ -39,7 +39,7 @@ import jade.lang.acl.UnreadableException;
 */
 public class TravelerAgent extends Agent {
 	protected AID[] receiver;
-	protected int value;
+	protected int value = 100;
 	public Cell position;
 	public Cell oldPosition;
 
@@ -48,10 +48,9 @@ public class TravelerAgent extends Agent {
 		Utils.register(this, this.getLocalName());
 		System.out.println("### " + getLocalName() + " is now ... Installed !");
 		// set value to agent
-		this.value = 100; // to differenciate from monster
 		// setup random position in grid
 		this.oldPosition = null;
-		this.position = new Cell(this.value, 3, 3);
+		this.position = new Cell(this.value, Constants.DIM_GRID_X/2, Constants.DIM_GRID_Y/2);
 		// add behaviours
 		addBehaviour(new RequestBestMoveBehaviour(this, 5000));
 		addBehaviour(new ForwardAIinfoToEnvironmentBehaviour());
@@ -61,8 +60,6 @@ public class TravelerAgent extends Agent {
 	 * bestPosition is an intelligent move received from AI agent
 	 */
 	public void move(Cell bestPosition) {
-		int i;
-		int j;
 		this.oldPosition = null;
 		this.oldPosition = this.position;
 		// erasing traveler at its previous position
@@ -148,10 +145,13 @@ public class TravelerAgent extends Agent {
 					updatedPositionMessage.addReceiver(environment);
 					// add performative
 					updatedPositionMessage.setPerformative(ACLMessage.INFORM);
+					// add conversationID
+					updatedPositionMessage.setConversationId(Constants.TRAVELER_ENV_CONVERSATION_ID);
 					// add new position as content in json
 					ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-					CellsBag cellsbag = new CellsBag(((Monster)myAgent).oldPosition, ((Monster)myAgent).position);
+					CellsBag cellsbag = new CellsBag(((TravelerAgent)myAgent).oldPosition, ((TravelerAgent)myAgent).position);
 					String jsonCellsbag = ow.writeValueAsString(cellsbag);
+					//System.out.println(jsonCellsbag);
 					updatedPositionMessage.setContent(jsonCellsbag);
 					// replying with new cellsbag
 					send(updatedPositionMessage);

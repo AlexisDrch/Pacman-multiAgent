@@ -48,7 +48,7 @@ public class Monster extends Agent {
 		// setup random position in grid 
 		Random rand = new Random();
 		this.oldPosition = null;
-		this.position = new Cell(0, rand.nextInt(9 - 0 + 1) + 0, rand.nextInt(9 - 0 + 1) + 0);
+		this.position = new Cell(0, rand.nextInt(Constants.DIM_GRID_X - 0 + 1) + 0, rand.nextInt(Constants.DIM_GRID_Y - 0 + 1) + 0);
 		// add behaviours
 		addBehaviour(new SubscribeToEngineBehaviour());
 		addBehaviour(new MoveBehaviour());
@@ -71,7 +71,10 @@ public class Monster extends Agent {
 		// erasing monster at its previous position
 		this.oldPosition.setValue(0);
 		// moving to a new random position
-		Cell newPosition = new Cell(this.getValue(), (this.oldPosition.nligne + this.getValue())%9, (this.oldPosition.ncolonne + this.getValue()-1)%9);
+		Cell newPosition = new Cell(this.getValue(), 
+				(this.oldPosition.nligne + this.getValue())%Constants.DIM_GRID_X, 
+				(this.oldPosition.ncolonne + this.getValue()-1)%Constants.DIM_GRID_Y
+				);
 		this.position = newPosition;
 		//System.out.print("\nAgent " + myAgent.getLocalName() + " has just received a request to move ---> " + newPosition.nligne + "," + newPosition.ncolonne);
 	}

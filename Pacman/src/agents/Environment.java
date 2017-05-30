@@ -40,7 +40,7 @@ public class Environment extends Agent {
 		Utils.register(this, this.getLocalName());
 		System.out.println("### " + getLocalName() + " is now ... Installed !");
 
-		this.myGrid = new Grid(Constants.GRID_LVL1);
+		this.myGrid = new Grid();
 		this.nshot = 0;
 
 		addBehaviour(new GetInformedFromEngineBehaviour(this.myGrid));
@@ -67,7 +67,7 @@ public class Environment extends Agent {
 		System.out.println("\n\n\n\n\n\n\n\n\n----------------------------" + this.nshot + "----------------------------\n\n");
 		this.myGrid.display();
 
-		System.out.println("\n\n----------------------------" + this.nshot + "----------------------------\n\n\n\n\n\n\n\n\n");
+		System.out.println("\n\n----------------------------" + this.nshot + "----------------------------");
 		this.nshot = this.nshot + 1 ;
 	}
 
@@ -145,14 +145,19 @@ public class Environment extends Agent {
 
 		@Override
 		public void action() {
-			// should receive a message that match console jade template : INFORM and ConversationId (either traveler or monster conv_id)
-			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.REQUEST)
-					.MatchConversationId(Constants.MONSTER_ENV_CONVERSATION_ID)
+			// should receive a message that match console jade template : INFORM and ConversationId 
+			MessageTemplate mt1 = MessageTemplate.MatchPerformative(ACLMessage.REQUEST)
+					.MatchConversationId(Constants.MONSTER_ENV_CONVERSATION_ID);
+			MessageTemplate mt2 = MessageTemplate.MatchPerformative(ACLMessage.REQUEST)
 					.MatchConversationId(Constants.TRAVELER_ENV_CONVERSATION_ID);
-			ACLMessage message = myAgent.receive(mt);
+			
+			// either traveler or monster conv_id
+			MessageTemplate m1_or_m2 = MessageTemplate.or(mt1, mt2);
+			ACLMessage message = myAgent.receive(m1_or_m2);
 			
 			if (message != null) {
 				String jsonMessage = message.getContent(); // chaîne JSON
+				// System.out.println(jsonMessage);
 				// parse json message with entities cellsbag
 				Gson gson = new Gson();
 				CellsBag cellsBag = gson.fromJson(jsonMessage, CellsBag.class);

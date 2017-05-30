@@ -42,7 +42,9 @@ public class ArtificialIntelligenceAgent extends Agent {
 	}
 	
 	public Cell chooseBestMove(Cell[] cells){
-		return cells[0];
+		Cell position = cells[0];
+		position.nligne= (position.nligne + 1)%Constants.DIM_GRID_X;
+		return position;
 	}
 
 	
