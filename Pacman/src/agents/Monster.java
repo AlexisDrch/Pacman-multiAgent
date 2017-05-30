@@ -118,25 +118,21 @@ public class Monster extends Agent {
 					String jsonMessage = message.getContent(); // chaîne JSON
 					// parse grid received to move
 					((Monster)myAgent).move();
-					// updating grid
 					
-					ACLMessage updatedGridReply = message.createReply();
+					ACLMessage updatedPositionReply = message.createReply();
 					// add performative
-					updatedGridReply.setPerformative(ACLMessage.INFORM);
+					updatedPositionReply.setPerformative(ACLMessage.INFORM);
 					// add new position as content in json
 					ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
 					CellsBag cellsbag = new CellsBag(((Monster)myAgent).oldPosition, ((Monster)myAgent).position);
 					String jsonCellsbag = ow.writeValueAsString(cellsbag);
-					updatedGridReply.setContent(jsonCellsbag);
-					// replying with new grid
-					send(updatedGridReply);
+					updatedPositionReply.setContent(jsonCellsbag);
+					// replying with new cellsbag
+					send(updatedPositionReply);
 				} catch (JsonProcessingException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				
-				// send(this.superPosition)
-				
 			} else {
 				block();
 			}

@@ -52,6 +52,14 @@ public class SecondaryContainer {
 				ac = cc.createNewAgent(monsterName, "agents.Monster", new Object[]{num});
 				ac.start();
 			}
+		
+			// generate 1 AI Agent
+			ac = cc.createNewAgent(Constants.AI_DESCRIPTION, "agents.ArtificialIntelligenceAgent", null);
+			ac.start();
+			
+			// generate 1 TravelerAgent
+			ac = cc.createNewAgent(Constants.TRAVELER_DESCRIPTION, "agents.TravelerAgent", null);
+			ac.start();
 			
 	  	  } catch(Exception ex) {
 	  		  ex.printStackTrace();

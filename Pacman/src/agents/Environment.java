@@ -43,8 +43,8 @@ public class Environment extends Agent {
 		this.myGrid = new Grid(Constants.GRID_LVL1);
 		this.nshot = 0;
 
-		addBehaviour(new GetInformedFromSimulationBehaviour(this.myGrid));
-		addBehaviour(new GetInformedFromMonsterXBehaviour(this.myGrid));
+		addBehaviour(new GetInformedFromEngineBehaviour(this.myGrid));
+		addBehaviour(new GetInformedFromEntitiesBehaviour(this.myGrid));
 		addBehaviour(new EndOfGameBehaviour());
 
 		this.displayMyGrid();
@@ -74,10 +74,10 @@ public class Environment extends Agent {
 	/**
 	 * GetInformedFromEngineBehaviour get an agent AID from engine and trigger a request to it directly.
 	 */
-	private class GetInformedFromSimulationBehaviour extends Behaviour {
+	private class GetInformedFromEngineBehaviour extends Behaviour {
 		Grid superGrid;
 		
-		public GetInformedFromSimulationBehaviour(Grid grid) {
+		public GetInformedFromEngineBehaviour(Grid grid) {
 			this.superGrid = grid;
 		}
 		
@@ -125,12 +125,12 @@ public class Environment extends Agent {
 	}
 	
 	/**
-	 * GetInformedFromMonsterXBehaviour get an updated grid from a monster (with its new position) and update UI.
+	 * GetInformedFromEntitiesBehaviour get an updated grid from a monster or the traveler(with its new position) and update UI.
 	 */
-	private class GetInformedFromMonsterXBehaviour extends Behaviour {
+	private class GetInformedFromEntitiesBehaviour extends Behaviour {
 		Grid superGrid;
 		
-		public GetInformedFromMonsterXBehaviour(Grid grid) {
+		public GetInformedFromEntitiesBehaviour(Grid grid) {
 			this.superGrid = grid;
 		}
 		
@@ -145,13 +145,15 @@ public class Environment extends Agent {
 
 		@Override
 		public void action() {
-			// should receive a message that match console jade template : INFORM and ConversationId
-			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.REQUEST).MatchConversationId(Constants.MONSTER_ENV_CONVERSATION_ID);
+			// should receive a message that match console jade template : INFORM and ConversationId (either traveler or monster conv_id)
+			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.REQUEST)
+					.MatchConversationId(Constants.MONSTER_ENV_CONVERSATION_ID)
+					.MatchConversationId(Constants.TRAVELER_ENV_CONVERSATION_ID);
 			ACLMessage message = myAgent.receive(mt);
 			
 			if (message != null) {
 				String jsonMessage = message.getContent(); // chaîne JSON
-				// parse json message with MonsterX cellsbag
+				// parse json message with entities cellsbag
 				Gson gson = new Gson();
 				CellsBag cellsBag = gson.fromJson(jsonMessage, CellsBag.class);
 				((Environment)myAgent).updateMyGrid(cellsBag);
