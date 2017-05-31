@@ -45,7 +45,6 @@ public class Environment extends Agent {
 
 		addBehaviour(new GetInformedFromEngineBehaviour(this.myGrid));
 		addBehaviour(new GetInformedFromEntitiesBehaviour(this.myGrid));
-		addBehaviour(new EndOfGameBehaviour());
 
 		this.displayMyGrid();
 	}
@@ -58,9 +57,25 @@ public class Environment extends Agent {
 		return this.myGrid;
 	}
 	
+	public boolean validMove(Cell targetedCell, Cell oldPosition) {
+		boolean inValid = (oldPosition.wasTraveler() && targetedCell.isMonster());
+		boolean inValid2 = (oldPosition.wasMonster() && targetedCell.isTraveler());
+		
+		return (!inValid && !inValid2);
+	}
+	
 	public void updateMyGrid(CellsBag cellsBag) {
-		this.myGrid.updateCell(cellsBag.oldPosition);
-		this.myGrid.updateCell(cellsBag.newPosition);
+		int newPositionLi = cellsBag.newPosition.nligne;
+		int newPositionCol = cellsBag.newPosition.ncolonne;
+		Cell targetedCell = this.myGrid.getCell(newPositionLi, newPositionCol);
+		if (validMove(targetedCell, cellsBag.oldPosition)) {
+			cellsBag.oldPosition.setOldValue(0);
+			this.myGrid.updateCell(cellsBag.oldPosition);
+			this.myGrid.updateCell(cellsBag.newPosition);
+		} else {
+			this.myGrid.endGame();
+			addBehaviour(new EndOfGameBehaviour());
+		}
 	}
 
 	public void displayMyGrid() {

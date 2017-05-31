@@ -6,10 +6,10 @@ import models.*;
 
 public class Grid {
 	public Cell[][] grid = new Cell[Constants.DIM_GRID_X][Constants.DIM_GRID_Y];
+	public boolean isOver = false;
 	
 	public Grid() {
 		int i,j;
-		
 		for(i = 0; i < Constants.DIM_GRID_X ; i ++) {
 			for(j = 0; j < Constants.DIM_GRID_Y ; j ++) {
 				Cell cell = new Cell(0, i, j);
@@ -17,9 +17,13 @@ public class Grid {
 			}
 		}
 	}
+	
+	public void endGame() {
+		this.isOver = true;
+	}
 
 	public boolean isOver() {
-		return false;
+		return this.isOver;
 	}
 	
 	public void printDashRow() {
@@ -50,6 +54,10 @@ public class Grid {
 			int nc = newCell.ncolonne;
 			grid[nl][nc] = newCell;
 		}
+	}
+	
+	public Cell getCell(int nl, int nc) {
+		return grid[nl][nc];
 	}
 	
 	// @todo

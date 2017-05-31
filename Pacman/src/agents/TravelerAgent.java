@@ -39,10 +39,9 @@ import jade.lang.acl.UnreadableException;
 */
 public class TravelerAgent extends Agent {
 	protected AID[] receiver;
-	protected int value = 100;
+	protected int value = Constants.TRAVELER_VALUE;
 	public Cell position;
 	public Cell oldPosition;
-
 
 	protected void setup() {
 		Utils.register(this, this.getLocalName());
@@ -64,6 +63,7 @@ public class TravelerAgent extends Agent {
 		this.oldPosition = this.position;
 		// erasing traveler at its previous position
 		this.oldPosition.setValue(0);
+		this.oldPosition.setOldValue(this.value);
 		// moving to a new intelligent position
 		this.position = bestPosition;
 		this.position.setValue(this.value);
@@ -129,7 +129,6 @@ public class TravelerAgent extends Agent {
 			ACLMessage message = myAgent.receive(mt);
 			
 			if (message != null) {
-
 				try {
 					// search for environment 
 					AID environment = Utils.searchForAgent(myAgent, Constants.ENVIRONMENT_DESCRIPTION);
