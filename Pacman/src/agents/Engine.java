@@ -161,6 +161,7 @@ public class Engine extends Agent {
 			if (message != null) {
 				System.out.print("\nAgent " + myAgent.getLocalName() + " has just received message --- " + message.getContent());
 				System.out.print("\n\n --- end of game");
+				myAgent.doDelete();
 			} else {
 				block();
 			}

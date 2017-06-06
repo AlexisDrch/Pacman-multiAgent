@@ -1,1 +1,1 @@
-http://mbp-de-alexis.home:7778/acc
+http://aduroche-hz-3.etu.utc:7778/acc

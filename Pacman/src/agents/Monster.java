@@ -70,6 +70,8 @@ public class Monster extends Agent {
 		this.oldPosition = this.position;
 		// erasing monster at its previous position
 		this.oldPosition.setValue(0);
+		// remember old value
+		this.oldPosition.setOldValue(this.value);
 		// moving to a new random position
 		Cell newPosition = new Cell(this.getValue(), 
 				(this.oldPosition.nligne + this.getValue())%Constants.DIM_GRID_X, 
