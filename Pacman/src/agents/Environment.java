@@ -60,7 +60,6 @@ public class Environment extends Agent {
 	public boolean validMove(Cell targetedCell, Cell oldPosition) {
 		boolean inValid = (oldPosition.wasTraveler() && targetedCell.isMonster());
 		boolean inValid2 = (oldPosition.wasMonster() && targetedCell.isTraveler());
-		
 		return (!inValid && !inValid2);
 	}
 	

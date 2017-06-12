@@ -11,6 +11,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import agents.MonsterAgent.SuscribeBehaviour;
 import models.*;
@@ -37,7 +38,11 @@ public class Monster extends Agent {
 	protected int value;
 	public Cell position;
 	public Cell oldPosition;
-
+	public Grid grid;
+	
+	public boolean positionCorrect(int i, int j, Grid grid) {
+		return grid.getObtacles(i,j);
+	}
 
 	protected void setup() {
 		Utils.register(this, this.getLocalName());
@@ -48,7 +53,14 @@ public class Monster extends Agent {
 		// setup random position in grid 
 		Random rand = new Random();
 		this.oldPosition = null;
-		this.position = new Cell(0, rand.nextInt(Constants.DIM_GRID_X - 0 + 1) + 0, rand.nextInt(Constants.DIM_GRID_Y - 0 + 1) + 0);
+		this.grid = new Grid();
+		int i = rand.nextInt(Constants.DIM_GRID_X - 1);
+		int j = rand.nextInt(Constants.DIM_GRID_Y - 1);
+		while(positionCorrect(i, j, grid)) {
+			i = rand.nextInt(Constants.DIM_GRID_X - 1);
+			j = rand.nextInt(Constants.DIM_GRID_Y - 1);
+		}
+		this.position = new Cell(0, i, j);
 		// add behaviours
 		addBehaviour(new SubscribeToEngineBehaviour());
 		addBehaviour(new MoveBehaviour());
@@ -73,10 +85,23 @@ public class Monster extends Agent {
 		// remember old value
 		this.oldPosition.setOldValue(this.value);
 		// moving to a new random position
-		Cell newPosition = new Cell(this.getValue(), 
-				(this.oldPosition.nligne + this.getValue())%Constants.DIM_GRID_X, 
-				(this.oldPosition.ncolonne + this.getValue()-1)%Constants.DIM_GRID_Y
-				);
+		int randomI = Utils.randomNumber();
+		int randomJ = Utils.randomNumber();
+		if(randomI == 0) {
+			randomJ = 1;
+		}
+		i = Math.floorMod(this.oldPosition.nligne + randomI, Constants.DIM_GRID_X);
+		j = Math.floorMod(this.oldPosition.ncolonne + randomJ, Constants.DIM_GRID_Y);
+		while(positionCorrect(i, j, grid)) {
+			randomI = Utils.randomNumber();
+			randomJ = Utils.randomNumber();
+			if(randomI == 0) {
+				randomJ = 1;
+			}
+			i = Math.floorMod(this.oldPosition.nligne + randomI, Constants.DIM_GRID_X);
+			j = Math.floorMod(this.oldPosition.ncolonne + randomJ, Constants.DIM_GRID_Y);
+		}
+		Cell newPosition = new Cell(this.getValue(), i, j);
 		this.position = newPosition;
 		//System.out.print("\nAgent " + myAgent.getLocalName() + " has just received a request to move ---> " + newPosition.nligne + "," + newPosition.ncolonne);
 	}

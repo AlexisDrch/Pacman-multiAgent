@@ -2,6 +2,7 @@ package models;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.Random;
 
 import jade.core.AID;
 import jade.core.Agent;
@@ -64,6 +65,21 @@ public class Utils {
 			cells[i] = new Cell((int)cellMap.get("value"), (int)cellMap.get("nligne"), (int)cellMap.get("ncolonne"));
 		}
 		return cells;
+	}
+	
+	public static boolean getRandomBoolean() {
+	       return Math.random() < 0.5;
+	       //I tried another approaches here, still the same result
+	   }
+	
+	public static int randomNumber() {
+		Random rand = new Random();
+		int random = rand.nextInt(1 - 0 + 1) + 0;
+		if (getRandomBoolean()) {
+			return random;
+		} else {
+			return -random;
+		}
 	}
 	
 }
