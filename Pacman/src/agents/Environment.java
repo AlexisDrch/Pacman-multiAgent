@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.Random;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -116,23 +117,29 @@ public class Environment extends Agent {
 				((Environment)myAgent).displayMyGrid();
 				String jsonMessage = message.getContent(); // chaîne JSON
 				// parse json message with MonsterX information
-				JSONObject obj = new JSONObject(jsonMessage);
-				String monsterXLocalName = obj.getString("localName");
-				String monsterXName = obj.getString("name");
-				// System.out.println("\nAgent " + myAgent.getLocalName() + " has just received credentials of --- " + monsterXLocalName );
-				// should send a request message to according monsterX asking him to move
-				AID monsterX = Utils.searchForAgent(myAgent, monsterXLocalName);
-				ACLMessage requestMessage = new ACLMessage();
-				// add performative
-				requestMessage.setPerformative(ACLMessage.REQUEST);
-				// add receiver
-				requestMessage.addReceiver(monsterX);
-				// add conversationID
-				requestMessage.setConversationId(Constants.MONSTER_ENV_CONVERSATION_ID);
-				// send message
-				send(requestMessage);
-				// refresh local grid
-				this.superGrid = ((Environment)myAgent).getMyGrid();
+				JSONObject obj;
+				try {
+					obj = new JSONObject(jsonMessage);
+					String monsterXLocalName = obj.getString("localName");
+					String monsterXName = obj.getString("name");
+					// System.out.println("\nAgent " + myAgent.getLocalName() + " has just received credentials of --- " + monsterXLocalName );
+					// should send a request message to according monsterX asking him to move
+					AID monsterX = Utils.searchForAgent(myAgent, monsterXLocalName);
+					ACLMessage requestMessage = new ACLMessage();
+					// add performative
+					requestMessage.setPerformative(ACLMessage.REQUEST);
+					// add receiver
+					requestMessage.addReceiver(monsterX);
+					// add conversationID
+					requestMessage.setConversationId(Constants.MONSTER_ENV_CONVERSATION_ID);
+					// send message
+					send(requestMessage);
+					// refresh local grid
+					this.superGrid = ((Environment)myAgent).getMyGrid();
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			} else {
 				block();
 			}
