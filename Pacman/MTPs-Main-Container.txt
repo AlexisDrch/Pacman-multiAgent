@@ -1,1 +1,1 @@
-http://augustins-mbp:7778/acc
+http://seguinau-hz-0.etu.utc:7778/acc

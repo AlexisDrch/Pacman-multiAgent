@@ -91,8 +91,6 @@ public class Grid {
 	
 	public boolean getObtacles(int i, int j) {
 		boolean position;
-		System.out.println(i);
-		System.out.println(j);
 		if(grid[i][j].getValue() == -1 ) {
 			position = true;
 		} else {
