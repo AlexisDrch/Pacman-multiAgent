@@ -79,7 +79,6 @@ public class Analyse extends Agent {
 			subscribeMessage.setContent(myAgent.getLocalName());
 			// send message to engine
 			send(subscribeMessage);
-			System.out.println("ICI \n"+ engine);
 //			System.out.print("\nAgent " + myAgent.getLocalName() + " has just sent a SubscribeToSimulater message to " + engine.getName());
 		}
 	}
@@ -123,6 +122,7 @@ public class Analyse extends Agent {
 				
 					System.out.print("\nAgent " + myAgent.getLocalName() + " has just received message --- " + message.getContent());
 					String jsonMessage = message.getContent(); // chaîne JSON
+					System.out.println(jsonMessage);
 					Gson gson = new Gson();
 					Cell monsterLastPosition = gson.fromJson(jsonMessage, Cell.class);
 					
@@ -146,7 +146,6 @@ public class Analyse extends Agent {
 				block();
 				return;
 			}
-				System.out.print("\nAgent " + myAgent.getLocalName() + " has just received message --- " + message.getContent());
 
 								myAgent.addBehaviour(new AskForMonsterPositionBehaviour());
 								

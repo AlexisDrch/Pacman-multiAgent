@@ -132,8 +132,9 @@ public class Environment extends Agent {
 			// TODO Auto-generated method stub
 			for(int i = 0; i < Constants.DIM_GRID_X ; i ++) {
 				for(int j = 0; j < Constants.DIM_GRID_Y ; j ++) {
-					if(superGrid.grid[i][j].isMonster() && superGrid.grid[i][j].getValue() == value_received)
+					if(superGrid.grid[i][j].isMonster() )
 					{
+						System.out.println("Grille : "+superGrid.grid[i][j].getValue()+" \n");
 						return superGrid.grid[i][j];
 					}
 				}
