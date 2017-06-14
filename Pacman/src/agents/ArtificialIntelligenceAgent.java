@@ -35,10 +35,13 @@ import jade.lang.acl.UnreadableException;
 public class ArtificialIntelligenceAgent extends Agent {
 
 
+	ArrayList<AID> analysersSubscriptionsList = new ArrayList<>();
+
 	protected void setup() {
 		Utils.register(this, this.getLocalName());
 		System.out.println("### " + getLocalName() + " is now ... Installed !");
 		addBehaviour(new GetRequestedFromTravelerBehaviour());
+		addBehaviour(new GetProposalFromAnalyserBehaviour());
 	}
 	
 	public Cell chooseBestMove(Cell[] cells){
@@ -53,6 +56,31 @@ public class ArtificialIntelligenceAgent extends Agent {
 	 * On each request, AI will call for proposal the analyser.
 	 * Chose the best option, based on traveler position.
 	 */
+
+	public class GetProposalFromAnalyserBehaviour extends Behaviour {
+
+		@Override
+		public void action() {
+			// TODO Auto-generated method stub
+			MessageTemplate mTemplate = MessageTemplate.MatchPerformative(ACLMessage.SUBSCRIBE);
+			ACLMessage analyserMsg ;
+			if((analyserMsg = receive(mTemplate)) == null)
+			{
+				block();
+				return;
+			}
+			
+			analysersSubscriptionsList.add(Utils.searchForAgent(myAgent, analyserMsg.getContent()));
+			System.out.println("J'ai recu un message d'inscription de l'analyser \n"+analysersSubscriptionsList);
+		}
+
+		@Override
+		public boolean done() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+	}
 	private class GetRequestedFromTravelerBehaviour extends CyclicBehaviour {
 		
 		@Override
@@ -68,6 +96,20 @@ public class ArtificialIntelligenceAgent extends Agent {
 					// parse json message with Traveler cellsbag
 					Gson gson = new Gson();
 					Cell travelerCurrentPosition = gson.fromJson(jsonMessage, Cell.class);
+					//TODO : Ask For analyser
+					analysersSubscriptionsList.forEach(cle->{
+						ACLMessage message_to_analyzer= new ACLMessage(ACLMessage.CFP);
+						message_to_analyzer.addReceiver(cle);
+						ObjectMapper mapper = new ObjectMapper();
+						try {
+							message_to_analyzer.setContent(mapper.writeValueAsString(travelerCurrentPosition));
+							send(message_to_analyzer);
+						} catch (JsonProcessingException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						
+					});
 					// ask for analysers @fake
 					Cell[] cells = new Cell[1];
 					// chose best options @fake

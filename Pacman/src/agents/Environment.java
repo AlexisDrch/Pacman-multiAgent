@@ -78,13 +78,13 @@ public class Environment extends Agent {
 			addBehaviour(new EndOfGameBehaviour());
 		}
 	}
-
+//TODO : Aghiles , retirer les comm
 	public void displayMyGrid() {
-		System.out.println("\n\n\n\n\n\n\n\n\n----------------------------" + this.nshot + "----------------------------\n\n");
-		this.myGrid.display();
-
-		System.out.println("\n\n----------------------------" + this.nshot + "----------------------------");
-		this.nshot = this.nshot + 1 ;
+//		System.out.println("\n\n\n\n\n\n\n\n\n----------------------------" + this.nshot + "----------------------------\n\n");
+//		this.myGrid.display();
+//
+//		System.out.println("\n\n----------------------------" + this.nshot + "----------------------------");
+//		this.nshot = this.nshot + 1 ;
 	}
 
 	/**

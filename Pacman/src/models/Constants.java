@@ -4,6 +4,7 @@ public class Constants {
 	public static String ENGINE_DESCRIPTION = "engine";
 	public static String ENVIRONMENT_DESCRIPTION = "environment";
 	public static String MONSTER_DESCRIPTION = "monster";
+	public static String ANALYZER_DESCRIPTION = "analyse";
 	public static String AI_DESCRIPTION = "artificialIntelligence";
 	public static String TRAVELER_DESCRIPTION = "traveler";
 	public static String MONSTER_ENV_CONVERSATION_ID = "xxxx3xxxx";

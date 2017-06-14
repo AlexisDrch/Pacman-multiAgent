@@ -52,6 +52,9 @@ public class Grid {
 		if (newCell != null) {
 			int nl = newCell.nligne;
 			int nc = newCell.ncolonne;
+			System.out.println(nl);
+			System.out.println(nc);
+			System.out.println(grid.length);
 			grid[nl][nc] = newCell;
 		}
 	}

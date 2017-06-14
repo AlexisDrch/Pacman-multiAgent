@@ -1,5 +1,7 @@
 package agents;
 
+import java.security.acl.Acl;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -23,12 +25,12 @@ public class Analyse extends Agent {
 		Utils.register(this, this.getLocalName());
 		System.out.println("### " + getLocalName() + " is now ... Installed !");
 		// set value to agent
-		Object[] args = getArguments();
-		this.value = (int) args[0];
+//		Object[] args = getArguments();
+//		this.value = (int) args[0];
 		this.monsterLastPosition = new Cell(-1, -1, -1);
 		// add behaviours
-		//addBehaviour(new SubscribeToEngineBehaviour());
-		//addBehaviour(new ReceiveCallForProposalBehaviour());
+		addBehaviour(new SubscribeToEngineBehaviour());
+		addBehaviour(new ReceiveCallForProposalBehaviour());
 		
 	}
 	
@@ -64,16 +66,18 @@ public class Analyse extends Agent {
 		
 		@Override
 		public void action() {
-			AID engine = Utils.searchForAgent(myAgent, Constants.ENGINE_DESCRIPTION);
+			AID engine = Utils.searchForAgent(myAgent, Constants.AI_DESCRIPTION);
 			// should send a subscribe message to simulation Agent
-			ACLMessage subscribeMessage = new ACLMessage();
+			ACLMessage subscribeMessage = new ACLMessage(ACLMessage.SUBSCRIBE);
 			// add performative
-			subscribeMessage.setPerformative(ACLMessage.SUBSCRIBE);
+//			subscribeMessage.setPerformative(ACLMessage.SUBSCRIBE);
 			// add engine  as a receiver
 			subscribeMessage.addReceiver(engine);
+			subscribeMessage.setContent(myAgent.getLocalName());
 			// send message to engine
 			send(subscribeMessage);
-			System.out.print("\nAgent " + myAgent.getLocalName() + " has just sent a SubscribeToSimulater message to " + engine.getName());
+			System.out.println("ICI \n"+ engine);
+//			System.out.print("\nAgent " + myAgent.getLocalName() + " has just sent a SubscribeToSimulater message to " + engine.getName());
 		}
 	}
 	
@@ -89,9 +93,9 @@ public class Analyse extends Agent {
 		public void action() {
 			AID environment = Utils.searchForAgent(myAgent, Constants.ENVIRONMENT_DESCRIPTION);
 			// should send a subscribe message to simulation Agent
-			ACLMessage subscribeMessage = new ACLMessage();
+			ACLMessage subscribeMessage = new ACLMessage(ACLMessage.REQUEST);
 			// add performative
-			subscribeMessage.setPerformative(ACLMessage.REQUEST);
+//			subscribeMessage.setPerformative(ACLMessage.REQUEST);
 			// add engine  as a receiver
 			subscribeMessage.addReceiver(environment);
 			// send message to engine
@@ -105,16 +109,21 @@ public class Analyse extends Agent {
 			@Override
 			public void action() {
 				MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
-				ACLMessage message = myAgent.receive(mt);
-				if (message != null) {
+				ACLMessage message ;
+				if((message= myAgent.receive(mt)) ==null)
+				{
+					block();
+					return;
+				}
+				
 					System.out.print("\nAgent " + myAgent.getLocalName() + " has just received message --- " + message.getContent());
 					String jsonMessage = message.getContent(); // chaîne JSON
 					Gson gson = new Gson();
 					Cell monsterLastPosition = gson.fromJson(jsonMessage, Cell.class);
-					((Analyse)myAgent).monsterLastPosition = monsterLastPosition;		
-				} else {
-					block();
-				}
+					((Analyse)myAgent).monsterLastPosition = monsterLastPosition;	
+					
+					
+				
 		}
 	}
 
@@ -125,31 +134,34 @@ public class Analyse extends Agent {
 		public void action() {
 			//First we wait for a message of type "Call for Proposal" from IAAgent
 			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.CFP);
-			ACLMessage message = myAgent.receive(mt);
-			if (message != null) {
-				System.out.print("\nAgent " + myAgent.getLocalName() + " has just received message --- " + message.getContent());
-				myAgent.addBehaviour(new AskForMonsterPositionBehaviour());
-				Cell[] cellsTab = new Cell[49];
-				cellsTab = ((Analyse) myAgent).getPossiblePosition();
-				try {
-					ACLMessage possibleNextPosition = message.createReply();
-					// add performative
-					possibleNextPosition.setPerformative(ACLMessage.INFORM);
-					// add new position as content in json
-					ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-					String jsonCell;
-					jsonCell = ow.writeValueAsString(cellsTab);
-					possibleNextPosition.setContent(jsonCell);
-					// replying with new best position
-					send(possibleNextPosition);
-				} catch (JsonProcessingException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-			} else {
+			ACLMessage message;
+			
+			if ((message = myAgent.receive(mt)) == null) {
 				block();
+				return;
 			}
+				System.out.print("\nAgent " + myAgent.getLocalName() + " has just received message --- " + message.getContent());
+
+								myAgent.addBehaviour(new AskForMonsterPositionBehaviour());
+//				Cell[] cellsTab = new Cell[49];
+//				cellsTab = ((Analyse) myAgent).getPossiblePosition();
+//				try {
+//					ACLMessage possibleNextPosition = message.createReply();
+//					// add performative
+//					possibleNextPosition.setPerformative(ACLMessage.INFORM);
+//					// add new position as content in json
+//					ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+//					String jsonCell;
+//					jsonCell = ow.writeValueAsString(cellsTab);
+//					possibleNextPosition.setContent(jsonCell);
+//					// replying with new best position
+//					send(possibleNextPosition);
+//				} catch (JsonProcessingException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+				
+			
 			
 		}
 	
