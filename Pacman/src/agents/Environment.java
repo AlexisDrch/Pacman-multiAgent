@@ -7,12 +7,14 @@ import java.util.Random;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.omg.PortableServer.ServantActivator;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.gson.Gson;
 
+import agents.Environment.InformAnalyzerOfMonsterPositionBehaviour;
 import models.*;
 
 import jade.core.AID;
@@ -27,6 +29,7 @@ import jade.wrapper.ContainerController;
 import jade.wrapper.StaleProxyException;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
+import jade.gui.AgentTree.SuperContainer;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.UnreadableException;
@@ -34,6 +37,7 @@ import jade.util.leap.ArrayList;
 
 
 public class Environment extends Agent {
+
 	protected int nshot;
 	protected Grid myGrid;
 
@@ -46,7 +50,7 @@ public class Environment extends Agent {
 
 		addBehaviour(new GetInformedFromEngineBehaviour(this.myGrid));
 		addBehaviour(new GetInformedFromEntitiesBehaviour(this.myGrid));
-
+		addBehaviour(new InformAnalyzerOfMonsterPositionBehaviour(this.myGrid));
 		this.displayMyGrid();
 	}
 	
@@ -87,6 +91,63 @@ public class Environment extends Agent {
 //		this.nshot = this.nshot + 1 ;
 	}
 
+	public class InformAnalyzerOfMonsterPositionBehaviour extends Behaviour {
+		Grid superGrid ; 
+
+		public InformAnalyzerOfMonsterPositionBehaviour(Grid myGrid) {
+			// TODO Auto-generated constructor stub
+			this.superGrid = myGrid;
+		}
+
+		@Override
+		public void action() {
+			// TODO Auto-generated method stub
+			ACLMessage message_received;
+			MessageTemplate mTemplate = MessageTemplate.MatchConversationId(Analyse.ASK_ENVIRONMENT_MONSTER_POSITION_CONVID);
+			if((message_received = receive(mTemplate)) == null)
+			{
+				block();
+				return;
+			}
+			Integer value_received = Integer.valueOf(message_received.getContent());
+			Cell monster_position = retrieveMonsterPositionUsingValue(value_received);
+			if(monster_position == null)
+			{
+				System.out.println("Problème ! \n");
+			}
+			ObjectMapper mapper = new ObjectMapper();
+			ACLMessage replyToAnalyzer = message_received.createReply();
+			replyToAnalyzer.setPerformative(ACLMessage.INFORM);
+			try {
+				replyToAnalyzer.setContent(mapper.writeValueAsString(monster_position));
+				send(replyToAnalyzer);
+			} catch (JsonProcessingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+
+		private Cell retrieveMonsterPositionUsingValue(Integer value_received) {
+			// TODO Auto-generated method stub
+			for(int i = 0; i < Constants.DIM_GRID_X ; i ++) {
+				for(int j = 0; j < Constants.DIM_GRID_Y ; j ++) {
+					if(superGrid.grid[i][j].isMonster() && superGrid.grid[i][j].getValue() == value_received)
+					{
+						return superGrid.grid[i][j];
+					}
+				}
+			}
+			return null;
+		}
+
+		@Override
+		public boolean done() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+	}
 	/**
 	 * GetInformedFromEngineBehaviour get an agent AID from engine and trigger a request to it directly.
 	 */
@@ -125,9 +186,9 @@ public class Environment extends Agent {
 					// System.out.println("\nAgent " + myAgent.getLocalName() + " has just received credentials of --- " + monsterXLocalName );
 					// should send a request message to according monsterX asking him to move
 					AID monsterX = Utils.searchForAgent(myAgent, monsterXLocalName);
-					ACLMessage requestMessage = new ACLMessage();
+					ACLMessage requestMessage = new ACLMessage(ACLMessage.REQUEST);
 					// add performative
-					requestMessage.setPerformative(ACLMessage.REQUEST);
+//					requestMessage.setPerformative();
 					// add receiver
 					requestMessage.addReceiver(monsterX);
 					// add conversationID

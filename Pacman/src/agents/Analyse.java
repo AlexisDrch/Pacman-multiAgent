@@ -18,6 +18,8 @@ import models.Constants;
 import models.Utils;
 
 public class Analyse extends Agent {
+	public static String ASK_ENVIRONMENT_MONSTER_POSITION_CONVID = "askEnvMonstPos";
+
 	protected int value;
 	protected Cell monsterLastPosition; 
 
@@ -62,6 +64,7 @@ public class Analyse extends Agent {
 	 * TODO
 	 * Behaviour to subscribe to IA Agent
 	 */
+	//TODO : Aghiles à corriger 
 	private class SubscribeToEngineBehaviour extends OneShotBehaviour {
 		
 		@Override
@@ -94,10 +97,11 @@ public class Analyse extends Agent {
 			AID environment = Utils.searchForAgent(myAgent, Constants.ENVIRONMENT_DESCRIPTION);
 			// should send a subscribe message to simulation Agent
 			ACLMessage subscribeMessage = new ACLMessage(ACLMessage.REQUEST);
-			// add performative
-//			subscribeMessage.setPerformative(ACLMessage.REQUEST);
+			// add conversation ID
+			subscribeMessage.setConversationId(Analyse.ASK_ENVIRONMENT_MONSTER_POSITION_CONVID);
 			// add engine  as a receiver
 			subscribeMessage.addReceiver(environment);
+			subscribeMessage.setContent(Integer.toString(value));
 			// send message to engine
 			send(subscribeMessage);
 			System.out.print("\nAgent " + myAgent.getLocalName() + " has just sent a SubscribeToSimulater message to " + environment.getName());
@@ -108,7 +112,8 @@ public class Analyse extends Agent {
 			
 			@Override
 			public void action() {
-				MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
+				MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM)
+						.MatchConversationId(Analyse.ASK_ENVIRONMENT_MONSTER_POSITION_CONVID);
 				ACLMessage message ;
 				if((message= myAgent.receive(mt)) ==null)
 				{
@@ -120,6 +125,7 @@ public class Analyse extends Agent {
 					String jsonMessage = message.getContent(); // chaîne JSON
 					Gson gson = new Gson();
 					Cell monsterLastPosition = gson.fromJson(jsonMessage, Cell.class);
+					
 					((Analyse)myAgent).monsterLastPosition = monsterLastPosition;	
 					
 					
@@ -143,6 +149,7 @@ public class Analyse extends Agent {
 				System.out.print("\nAgent " + myAgent.getLocalName() + " has just received message --- " + message.getContent());
 
 								myAgent.addBehaviour(new AskForMonsterPositionBehaviour());
+								
 //				Cell[] cellsTab = new Cell[49];
 //				cellsTab = ((Analyse) myAgent).getPossiblePosition();
 //				try {
