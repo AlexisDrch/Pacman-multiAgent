@@ -38,11 +38,7 @@ public class Monster extends Agent {
 	protected int value;
 	public Cell position;
 	public Cell oldPosition;
-	public Grid grid;
-	
-	public boolean positionCorrect(int i, int j, Grid grid) {
-		return grid.getObtacles(i,j);
-	}
+	protected boolean fail = false;
 
 	protected void setup() {
 		Utils.register(this, this.getLocalName());
@@ -52,18 +48,14 @@ public class Monster extends Agent {
 		this.value = (int) args[0];
 		// setup random position in grid 
 		Random rand = new Random();
-		this.oldPosition = null;
-		this.grid = new Grid();
 		int i = rand.nextInt(Constants.DIM_GRID_X - 1);
 		int j = rand.nextInt(Constants.DIM_GRID_Y - 1);
-		while(positionCorrect(i, j, grid)) {
-			i = rand.nextInt(Constants.DIM_GRID_X - 1);
-			j = rand.nextInt(Constants.DIM_GRID_Y - 1);
-		}
 		this.position = new Cell(0, i, j);
+		this.oldPosition = null;
 		// add behaviours
 		addBehaviour(new SubscribeToEngineBehaviour());
 		addBehaviour(new MoveBehaviour());
+		addBehaviour(new CatchFailureBehaviour());
 	}
 	
 	public void setValue(int newValue) {
@@ -80,31 +72,35 @@ public class Monster extends Agent {
 		int j;
 		this.oldPosition = null;
 		this.oldPosition = this.position;
-		// erasing monster at its previous position
 		this.oldPosition.setValue(0);
 		// remember old value
 		this.oldPosition.setOldValue(this.value);
-		// moving to a new random position
-		int randomI = Utils.randomNumber();
-		int randomJ = Utils.randomNumber();
-		if(randomI == 0) {
-			randomJ = 1;
-		}
-		i = Math.floorMod(this.oldPosition.nligne + randomI, Constants.DIM_GRID_X);
-		j = Math.floorMod(this.oldPosition.ncolonne + randomJ, Constants.DIM_GRID_Y);
-		while(positionCorrect(i, j, grid)) {
-			randomI = Utils.randomNumber();
-			randomJ = Utils.randomNumber();
+		if (this.fail == true) {
+			Random rand = new Random();
+			i = rand.nextInt(Constants.DIM_GRID_X - 1);
+			j = rand.nextInt(Constants.DIM_GRID_Y - 1);
+			this.position = new Cell(this.getValue(), i, j);
+			this.fail = false;
+			
+		} else {
+			this.oldPosition = null;
+			this.oldPosition = this.position;
+			// erasing monster at its previous position
+			// moving to a new random position
+			int randomI = Utils.randomNumber();
+			int randomJ = Utils.randomNumber();
 			if(randomI == 0) {
 				randomJ = 1;
 			}
 			i = Math.floorMod(this.oldPosition.nligne + randomI, Constants.DIM_GRID_X);
 			j = Math.floorMod(this.oldPosition.ncolonne + randomJ, Constants.DIM_GRID_Y);
+			Cell newPosition = new Cell(this.getValue(), i, j);
+			this.position = newPosition;
+			//System.out.print("\nAgent " + myAgent.getLocalName() + " has just received a request to move ---> " + newPosition.nligne + "," + newPosition.ncolonne);
 		}
-		Cell newPosition = new Cell(this.getValue(), i, j);
-		this.position = newPosition;
-		//System.out.print("\nAgent " + myAgent.getLocalName() + " has just received a request to move ---> " + newPosition.nligne + "," + newPosition.ncolonne);
 	}
+		
+		
 	
 	
 	/**
@@ -163,6 +159,31 @@ public class Monster extends Agent {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+			} else {
+				block();
+			}
+		}
+			
+	}
+	
+	/**
+	 * Behaviour to move from one step to another
+	 * This behaviour will continuously wait for receiving a message from environment.
+	 * On its reception, the monster will randomly move according to the grid received and to its position.
+	 * Then the new position is sent to the environment.
+	 */
+	private class CatchFailureBehaviour extends CyclicBehaviour {
+		
+		@Override
+		public void action() {
+			// should receive a message that match console jade template : REQUEST and conversationId
+			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.FAILURE).MatchConversationId(Constants.MONSTER_ENV_CONVERSATION_ID);
+			ACLMessage message = myAgent.receive(mt);
+			
+			if (message != null) {
+				((Monster)myAgent).fail = true;
+				System.out.println(((Monster)myAgent).position.nligne);
+				System.out.println(((Monster)myAgent).position.ncolonne);
 			} else {
 				block();
 			}
