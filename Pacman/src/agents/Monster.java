@@ -167,10 +167,9 @@ public class Monster extends Agent {
 	}
 	
 	/**
-	 * Behaviour to move from one step to another
+	 * Behaviour to check if a movement is invalid
 	 * This behaviour will continuously wait for receiving a message from environment.
-	 * On its reception, the monster will randomly move according to the grid received and to its position.
-	 * Then the new position is sent to the environment.
+	 * On its reception, the monster will set the variable fail to true. The aim is to change fail. When fail is true, the position will change.
 	 */
 	private class CatchFailureBehaviour extends CyclicBehaviour {
 		
@@ -182,8 +181,6 @@ public class Monster extends Agent {
 			
 			if (message != null) {
 				((Monster)myAgent).fail = true;
-				System.out.println(((Monster)myAgent).position.nligne);
-				System.out.println(((Monster)myAgent).position.ncolonne);
 			} else {
 				block();
 			}
