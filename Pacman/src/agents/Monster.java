@@ -11,6 +11,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import agents.MonsterAgent.SuscribeBehaviour;
 import models.*;
@@ -37,7 +38,7 @@ public class Monster extends Agent {
 	protected int value;
 	public Cell position;
 	public Cell oldPosition;
-
+	protected boolean fail = false;
 
 	protected void setup() {
 		Utils.register(this, this.getLocalName());
@@ -47,11 +48,14 @@ public class Monster extends Agent {
 		this.value = (int) args[0];
 		// setup random position in grid 
 		Random rand = new Random();
+		int i = rand.nextInt(Constants.DIM_GRID_X - 1);
+		int j = rand.nextInt(Constants.DIM_GRID_Y - 1);
+		this.position = new Cell(0, i, j);
 		this.oldPosition = null;
-		this.position = new Cell(0, rand.nextInt(Constants.DIM_GRID_X - 0 + 1) + 0, rand.nextInt(Constants.DIM_GRID_Y - 0 + 1) + 0);
 		// add behaviours
 		addBehaviour(new SubscribeToEngineBehaviour());
 		addBehaviour(new MoveBehaviour());
+		addBehaviour(new CatchFailureBehaviour());
 	}
 	
 	public void setValue(int newValue) {
@@ -68,18 +72,35 @@ public class Monster extends Agent {
 		int j;
 		this.oldPosition = null;
 		this.oldPosition = this.position;
-		// erasing monster at its previous position
 		this.oldPosition.setValue(0);
 		// remember old value
 		this.oldPosition.setOldValue(this.value);
-		// moving to a new random position
-		Cell newPosition = new Cell(this.getValue(), 
-				(this.oldPosition.nligne + this.getValue())%Constants.DIM_GRID_X, 
-				(this.oldPosition.ncolonne + this.getValue()-1)%Constants.DIM_GRID_Y
-				);
-		this.position = newPosition;
-		//System.out.print("\nAgent " + myAgent.getLocalName() + " has just received a request to move ---> " + newPosition.nligne + "," + newPosition.ncolonne);
+		if (this.fail == true) {
+			Random rand = new Random();
+			i = rand.nextInt(Constants.DIM_GRID_X - 1);
+			j = rand.nextInt(Constants.DIM_GRID_Y - 1);
+			this.position = new Cell(this.getValue(), i, j);
+			this.fail = false;
+			
+		} else {
+			this.oldPosition = null;
+			this.oldPosition = this.position;
+			// erasing monster at its previous position
+			// moving to a new random position
+			int randomI = Utils.randomNumber();
+			int randomJ = Utils.randomNumber();
+			if(randomI == 0) {
+				randomJ = 1;
+			}
+			i = Math.floorMod(this.oldPosition.nligne + randomI, Constants.DIM_GRID_X);
+			j = Math.floorMod(this.oldPosition.ncolonne + randomJ, Constants.DIM_GRID_Y);
+			Cell newPosition = new Cell(this.getValue(), i, j);
+			this.position = newPosition;
+			//System.out.print("\nAgent " + myAgent.getLocalName() + " has just received a request to move ---> " + newPosition.nligne + "," + newPosition.ncolonne);
+		}
 	}
+		
+		
 	
 	
 	/**
@@ -138,6 +159,28 @@ public class Monster extends Agent {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+			} else {
+				block();
+			}
+		}
+			
+	}
+	
+	/**
+	 * Behaviour to check if a movement is invalid
+	 * This behaviour will continuously wait for receiving a message from environment.
+	 * On its reception, the monster will set the variable fail to true. The aim is to change fail. When fail is true, the position will change.
+	 */
+	private class CatchFailureBehaviour extends CyclicBehaviour {
+		
+		@Override
+		public void action() {
+			// should receive a message that match console jade template : REQUEST and conversationId
+			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.FAILURE).MatchConversationId(Constants.MONSTER_ENV_CONVERSATION_ID);
+			ACLMessage message = myAgent.receive(mt);
+			
+			if (message != null) {
+				((Monster)myAgent).fail = true;
 			} else {
 				block();
 			}

@@ -1,3 +1,6 @@
 .metadata/
 .recommenders/
 /bin/
+Pacman/lib/jackson-core-asl-1.9.13.jar
+Pacman/lib/json-20170516.jar
+.gitignore

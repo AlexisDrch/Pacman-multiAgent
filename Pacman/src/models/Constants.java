@@ -11,7 +11,7 @@ public class Constants {
 	public static String TRAVELER_ENV_CONVERSATION_ID = "xxxx5xxxx";
 	public static int MONSTER_NUMBER = 3;
 	public static int TRAVELER_VALUE = 100;
-	public static int DIM_GRID_X = 10;
+	public static int DIM_GRID_X = 12;
 	public static int DIM_GRID_Y = 20;
 	public static int[][] GRID_LVL1 = {
 			{0,0,0,0,0,0,0,0,0},

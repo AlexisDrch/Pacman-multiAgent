@@ -33,8 +33,12 @@ import jade.lang.acl.UnreadableException;
 
 
 public class ArtificialIntelligenceAgent extends Agent {
+	Grid grid = new Grid();
 
-
+	public boolean positionCorrect(int i, int j, Grid grid) {
+		return grid.getObtacles(i,j);
+	}
+	
 	protected void setup() {
 		Utils.register(this, this.getLocalName());
 		System.out.println("### " + getLocalName() + " is now ... Installed !");
@@ -43,7 +47,24 @@ public class ArtificialIntelligenceAgent extends Agent {
 	
 	public Cell chooseBestMove(Cell[] cells){
 		Cell position = cells[0];
-		position.nligne= (position.nligne + 1)%Constants.DIM_GRID_X;
+		int randomI = Utils.randomNumber();
+		int randomJ = Utils.randomNumber();
+		if(randomI == 0) {
+			randomJ = 1;
+		}
+		int i = (position.nligne + randomI)%Constants.DIM_GRID_X;
+		int j = (position.ncolonne + randomJ)%Constants.DIM_GRID_Y;
+		while(positionCorrect(i, j, grid)) {
+			randomI = Utils.randomNumber();
+			randomJ = Utils.randomNumber();
+			if(randomI == 0) {
+				randomJ = 1;
+			}
+			i = (position.nligne + randomI)%Constants.DIM_GRID_X;
+			j = (position.ncolonne + randomJ)%Constants.DIM_GRID_Y;
+		}
+		position.nligne = i;
+		position.ncolonne = j;
 		return position;
 	}
 

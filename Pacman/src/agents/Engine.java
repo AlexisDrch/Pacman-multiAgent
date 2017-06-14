@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Random;
 import models.*;
-import sun.util.calendar.LocalGregorianCalendar.Date;
+//import sun.util.calendar.LocalGregorianCalendar.Date;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
@@ -48,7 +48,7 @@ public class Engine extends Agent {
 		public MySequentialBehaviour(ArrayList agentSubscriptions) {
 			System.out.println("### Beginning the main game logic ...  ");
 			addSubBehaviour(new AcceptNewSubscriptionBehaviour(agentSubscriptions));
-			addSubBehaviour(new myTickerBehaviour(myAgent, 1000, agentSubscriptions));
+			addSubBehaviour(new myTickerBehaviour(myAgent, 3000, agentSubscriptions));
 			addBehaviour(new WaitForEndOfGameBehaviour());
 		}
 		

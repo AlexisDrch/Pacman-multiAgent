@@ -176,8 +176,26 @@ public class Environment extends Agent {
 				// parse json message with entities cellsbag
 				Gson gson = new Gson();
 				CellsBag cellsBag = gson.fromJson(jsonMessage, CellsBag.class);
-				((Environment)myAgent).updateMyGrid(cellsBag);
-				this.superGrid = ((Environment)myAgent).getMyGrid();
+				//Check validity of new position
+				if (myGrid.getObtacles(cellsBag.newPosition.nligne, cellsBag.newPosition.ncolonne)) {
+					int value = 0;
+					if (myGrid.getObtacles(cellsBag.oldPosition.nligne, cellsBag.oldPosition.ncolonne)) {
+						value = -1;
+					} 
+					// remove old monster value from dirty position
+					Cell dirtyCell = new Cell(value,cellsBag.oldPosition.nligne, cellsBag.oldPosition.ncolonne);
+					((Environment)myAgent).myGrid.updateCell(dirtyCell);
+					// prevent Monster from moving : has to move in a new random one
+					ACLMessage errorReply = message.createReply();
+					errorReply.setPerformative(ACLMessage.FAILURE);
+					send(errorReply);
+				} else {
+					if (myGrid.getObtacles(cellsBag.oldPosition.nligne, cellsBag.oldPosition.ncolonne)) {
+						cellsBag.oldPosition.setValue(-1);
+					}
+					((Environment)myAgent).updateMyGrid(cellsBag);
+					this.superGrid = ((Environment)myAgent).getMyGrid();
+				}
 			} else {
 				block();
 			}
