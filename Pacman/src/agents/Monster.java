@@ -45,6 +45,7 @@ public class Monster extends Agent {
 		// set value to agent
 		Object[] args = getArguments();
 		this.value = (int) args[0];
+		System.out.println("Valeur du monstre "+value);
 		// setup random position in grid 
 		Random rand = new Random();
 		this.oldPosition = null;
@@ -92,9 +93,9 @@ public class Monster extends Agent {
 			// search for simulater = only SimulationAgent 
 			AID engine = Utils.searchForAgent(myAgent, Constants.ENGINE_DESCRIPTION);
 			// should send a subscribe message to simulation Agent
-			ACLMessage subscribeMessage = new ACLMessage();
+			ACLMessage subscribeMessage = new ACLMessage(ACLMessage.SUBSCRIBE);
 			// add performative
-			subscribeMessage.setPerformative(ACLMessage.SUBSCRIBE);
+//			subscribeMessage.setPerformative();
 			// add engine  as a receiver
 			subscribeMessage.addReceiver(engine);
 			// send message to engine

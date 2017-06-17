@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 
 public class Engine extends Agent {
 	public ArrayList mySubscriptions = new ArrayList();
+	public static boolean beginTic = false;
 
 	protected void setup() {
 		Utils.register(this, this.getLocalName());
@@ -69,6 +70,7 @@ public class Engine extends Agent {
 		@Override
 		public boolean done() {
 			if (myAgentSubscriptions.size() >= Constants.MONSTER_NUMBER) {
+				beginTic = true;
 				System.out.println("\n### Waiting for monsters' subscription ... done !" + "\n ==> Size is " + myAgentSubscriptions.size());
 				System.out.println("\n### Beginning engine ticker...  ");
 				return true;
@@ -121,6 +123,9 @@ public class Engine extends Agent {
 
 		@Override
 		protected void onTick() {
+			if(beginTic == false) {block();
+			return;
+			}
 			int i;
 			// TODO Auto-generated method stub
 			System.out.println("\n### Tic");
@@ -129,13 +134,13 @@ public class Engine extends Agent {
 			for(i = 0; i < Constants.MONSTER_NUMBER; i ++) {
 				try {
 					// send 27 analyser AID to environment agent
-					ACLMessage informMessage = new ACLMessage();
+					ACLMessage informMessage = new ACLMessage(ACLMessage.REQUEST);
 					// set AID content formated in json
 					ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
 					String json = ow.writeValueAsString(this.superAgentSubscription.get(i));
 					informMessage.setContent(json);
 					// add performative
-					informMessage.setPerformative(ACLMessage.REQUEST);
+//					informMessage.setPerformative(ACLMessage.REQUEST);
 					// add envir as a receiver
 					informMessage.addReceiver(environment);
 					// add analyser AID
@@ -147,6 +152,7 @@ public class Engine extends Agent {
 					e.printStackTrace();
 				}
 			}
+			beginTic = false;
 		}
 	}
 	

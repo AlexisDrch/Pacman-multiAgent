@@ -70,6 +70,7 @@ public class Environment extends Agent {
 	}
 	
 	public void updateMyGrid(CellsBag cellsBag) {
+		System.out.println("MAJ DE LA GRILLE");
 		int newPositionLi = cellsBag.newPosition.nligne;
 		int newPositionCol = cellsBag.newPosition.ncolonne;
 		Cell targetedCell = this.myGrid.getCell(newPositionLi, newPositionCol);
@@ -84,11 +85,11 @@ public class Environment extends Agent {
 	}
 //TODO : Aghiles , retirer les comm
 	public void displayMyGrid() {
-//		System.out.println("\n\n\n\n\n\n\n\n\n----------------------------" + this.nshot + "----------------------------\n\n");
-//		this.myGrid.display();
-//
-//		System.out.println("\n\n----------------------------" + this.nshot + "----------------------------");
-//		this.nshot = this.nshot + 1 ;
+		System.out.println("\n\n\n\n\n\n\n\n\n----------------------------" + this.nshot + "----------------------------\n\n");
+		this.myGrid.display();
+
+		System.out.println("\n\n----------------------------" + this.nshot + "----------------------------");
+		this.nshot = this.nshot + 1 ;
 	}
 
 	public class InformAnalyzerOfMonsterPositionBehaviour extends Behaviour {
@@ -103,8 +104,12 @@ public class Environment extends Agent {
 		public void action() {
 			// TODO Auto-generated method stub
 			ACLMessage message_received;
-			MessageTemplate mTemplate = MessageTemplate.MatchConversationId(Analyse.ASK_ENVIRONMENT_MONSTER_POSITION_CONVID);
-			if((message_received = receive(mTemplate)) == null)
+			MessageTemplate mTemplate1 = MessageTemplate.MatchConversationId(Analyse.ASK_ENVIRONMENT_MONSTER_POSITION_CONVID+1);
+			MessageTemplate mTemplate2 = MessageTemplate.MatchConversationId(Analyse.ASK_ENVIRONMENT_MONSTER_POSITION_CONVID+2);
+			MessageTemplate mTemplate3 = MessageTemplate.MatchConversationId(Analyse.ASK_ENVIRONMENT_MONSTER_POSITION_CONVID+3);
+			MessageTemplate mTemplate = MessageTemplate.or(mTemplate1, mTemplate2);
+			
+			if((message_received = receive(MessageTemplate.or(mTemplate, mTemplate3))) == null)
 			{
 				block();
 				return;
@@ -120,6 +125,7 @@ public class Environment extends Agent {
 			replyToAnalyzer.setPerformative(ACLMessage.INFORM);
 			try {
 				replyToAnalyzer.setContent(mapper.writeValueAsString(monster_position));
+				System.out.println("POsition du Monstre renvoyée "+replyToAnalyzer.getContent());
 				send(replyToAnalyzer);
 			} catch (JsonProcessingException e) {
 				// TODO Auto-generated catch block
@@ -130,12 +136,15 @@ public class Environment extends Agent {
 
 		private Cell retrieveMonsterPositionUsingValue(Integer value_received) {
 			// TODO Auto-generated method stub
+			Cell cellule; 
 			for(int i = 0; i < Constants.DIM_GRID_X ; i ++) {
 				for(int j = 0; j < Constants.DIM_GRID_Y ; j ++) {
-					if(superGrid.grid[i][j].isMonster() )
+					cellule = superGrid.grid[i][j];
+					if(cellule.isMonster() && cellule.getValue() == value_received)
 					{
-						System.out.println("Grille : "+superGrid.grid[i][j].getValue()+" \n");
-						return superGrid.grid[i][j];
+						System.out.println("Valeur à tester "+value_received);
+						System.out.println("Monstre trouvé : "+i+" "+j+superGrid.grid[i][j].getValue()+" \n");
+						return cellule;
 					}
 				}
 			}
@@ -178,6 +187,7 @@ public class Environment extends Agent {
 				//display and refresh grid;
 				((Environment)myAgent).displayMyGrid();
 				String jsonMessage = message.getContent(); // chaîne JSON
+				System.out.println("Pb message "+jsonMessage);
 				// parse json message with MonsterX information
 				JSONObject obj;
 				try {

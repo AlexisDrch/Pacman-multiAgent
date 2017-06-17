@@ -58,7 +58,7 @@ public class SecondaryContainer {
 				int num = (i+1);
 			
 				String analyserName= Constants.ANALYZER_DESCRIPTION+"_"+String.valueOf(num);
-				ac = cc.createNewAgent(analyserName, "agents.Analyse",null);
+				ac = cc.createNewAgent(analyserName, "agents.Analyse",new Object[]{num});
 				ac.start();
 			}
 		
