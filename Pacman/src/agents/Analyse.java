@@ -65,6 +65,7 @@ public class Analyse extends Agent {
 	 * TODO
 	 * Behaviour to subscribe to IA Agent
 	 */
+	//TODO : Aghiles à corriger 
 	private class SubscribeToEngineBehaviour extends OneShotBehaviour {
 
 		@Override
