@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Random;
 
-import agents.MonsterAgent.SuscribeBehaviour;
 import models.*;
 
 import jade.core.AID;
@@ -57,6 +56,10 @@ public class ArtificialIntelligenceAgent extends Agent {
 	}
 	
 	public Cell chooseBestMove(){
+		// @Arnaud to do : passer a traver toute la liste : calculer distance euclidienne travelerPostion et cellule de liste.
+		// double boucle for imbriqué : 
+		// pour chaque position possible de traveler a comparer avec chaque cellule de predictedMonsterPositionsList
+		// conserver celle qui maximise distance et la retourner
 		Cell position = predictedMonsterPositionsList.get(0);
 		int randomI = Utils.randomNumber();
 		int randomJ = Utils.randomNumber();
@@ -87,7 +90,6 @@ public class ArtificialIntelligenceAgent extends Agent {
 	private class MySequentialBehaviour extends SequentialBehaviour {
 		
 		public MySequentialBehaviour(ArrayList agentSubscriptions) {
-			System.out.println("### Beginning the main game logic ...  ");
 			addSubBehaviour(new AcceptNewSubscriptionBehaviour(agentSubscriptions));
 			addSubBehaviour(new MyParallelLogicBehaviour());
 		}
@@ -150,7 +152,6 @@ public class ArtificialIntelligenceAgent extends Agent {
 	private class MyParallelLogicBehaviour extends ParallelBehaviour {
 		
 		public MyParallelLogicBehaviour() {
-			System.out.println("### Beginning the main game logic ...  ");
 			addSubBehaviour(new GetRequestedFromTravelerBehaviour());
 			addSubBehaviour(new GetProposalFromAnalyserBehaviour());
 		}

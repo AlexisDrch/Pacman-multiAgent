@@ -113,7 +113,7 @@ public class Environment extends Agent {
 			
 			if (message != null) {
 				//display and refresh grid;
-				((Environment)myAgent).displayMyGrid();
+				//((Environment)myAgent).displayMyGrid();
 				String jsonMessage = message.getContent(); // chaîne JSON
 				// parse json message with MonsterX information
 				JSONObject obj = new JSONObject(jsonMessage);

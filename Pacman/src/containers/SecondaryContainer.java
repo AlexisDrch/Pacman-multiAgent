@@ -52,6 +52,15 @@ public class SecondaryContainer {
 				ac = cc.createNewAgent(monsterName, "agents.Monster", new Object[]{num});
 				ac.start();
 			}
+			
+			//Generate at the same time an analyzer taking care of a monster 
+			for(i = 0 ; i < Constants.MONSTER_NUMBER ; i++) {
+				int num = (i+1);
+			
+				String analyserName= Constants.ANALYZER_DESCRIPTION+"_"+String.valueOf(num);
+				ac = cc.createNewAgent(analyserName, "agents.AnalyserAgent",new Object[]{num});
+				ac.start();
+			}
 		
 			// generate 1 AI Agent
 			ac = cc.createNewAgent(Constants.AI_DESCRIPTION, "agents.ArtificialIntelligenceAgent", null);

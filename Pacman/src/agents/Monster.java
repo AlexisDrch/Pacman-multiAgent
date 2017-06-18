@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
-import agents.MonsterAgent.SuscribeBehaviour;
 import models.*;
 
 import jade.core.AID;

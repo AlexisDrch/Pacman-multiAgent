@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Random;
 
-import agents.MonsterAgent.SuscribeBehaviour;
 import models.*;
 
 import jade.core.AID;
