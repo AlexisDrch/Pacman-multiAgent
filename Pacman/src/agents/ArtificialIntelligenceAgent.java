@@ -36,9 +36,12 @@ import jade.util.leap.HashMap;
 
 
 public class ArtificialIntelligenceAgent extends Agent {
-	public int numberProposeReceived;
-	ArrayList<Cell> predictedMonsterPositionsList = new ArrayList<>();
-	ArrayList<AID> analysersSubscriptionsList = new ArrayList<>();
+	protected int numberProposeReceived;
+	protected ArrayList<Cell> predictedMonsterPositionsList = new ArrayList<>();
+	protected ArrayList<AID> analysersSubscriptionsList = new ArrayList<>();
+	protected Cell travelerPosition = null;
+	protected boolean readyForAnalyse = false;
+	protected int analyseReceived = 0;
 
 	Grid grid = new Grid();
 
@@ -53,8 +56,8 @@ public class ArtificialIntelligenceAgent extends Agent {
 		return grid.getObtacles(i,j);
 	}
 	
-	public Cell chooseBestMove(Cell[] cells){
-		Cell position = cells[0];
+	public Cell chooseBestMove(){
+		Cell position = predictedMonsterPositionsList.get(0);
 		int randomI = Utils.randomNumber();
 		int randomJ = Utils.randomNumber();
 		if(randomI == 0) {
@@ -148,8 +151,8 @@ public class ArtificialIntelligenceAgent extends Agent {
 		
 		public MyParallelLogicBehaviour() {
 			System.out.println("### Beginning the main game logic ...  ");
-			//addSubBehaviour(new GetRequestedFromTravelerBehaviour());
-			//addSubBehaviour(new GetProposalFromAnalyserBehaviour());
+			addSubBehaviour(new GetRequestedFromTravelerBehaviour());
+			addSubBehaviour(new GetProposalFromAnalyserBehaviour());
 		}
 	}
 		
@@ -166,62 +169,77 @@ public class ArtificialIntelligenceAgent extends Agent {
 				MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.REQUEST).MatchConversationId(Constants.TRAVELER_AI_CONVERSATION_ID);
 				ACLMessage message = myAgent.receive(mt);
 				
-				if (message != null) {
-					//System.out.print("\nAgent " + myAgent.getLocalName() + " has just received a request  --- ");
+				if (message != null && (((ArtificialIntelligenceAgent)myAgent).predictedMonsterPositionsList.size() == 0)) {
 					String jsonMessage = message.getContent(); 
 					Gson gson = new Gson();
 					Cell travelerPosition = gson.fromJson(jsonMessage, Cell.class);
-					
-					//CONTRACT-NET to Analysers
-					analysersSubscriptionsList.forEach(cle->{
+					((ArtificialIntelligenceAgent)myAgent).travelerPosition = travelerPosition;
+					//CONTRACT-NET with all Analysers
+					((ArtificialIntelligenceAgent)myAgent).analysersSubscriptionsList.forEach(cle->{
 						ACLMessage message_to_analyzer= new ACLMessage(ACLMessage.CFP);
 						message_to_analyzer.addReceiver(cle);
+						message_to_analyzer.setConversationId(Constants.ANALYSER_AI_CONVERSATION_ID);
 						send(message_to_analyzer);
 					});
+					((ArtificialIntelligenceAgent)myAgent).readyForAnalyse = true;
+					((ArtificialIntelligenceAgent)myAgent).analyseReceived = 0;
 				} else {
 					block();
 				}
 			}
-				
 		}
 	
 	/**
 	 * GetProposalFromAnalyserBehaviour
 	 * receive all position and stock it in list
 	 * Chose the best option, based on traveler position and predicted position.
+	 * send analysed move to traveler
 	*/
 	public class GetProposalFromAnalyserBehaviour  extends CyclicBehaviour{
 		@Override
 		public void action() {
-			if (numberProposeReceived < 5){
-				MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.PROPOSE);
-				ACLMessage message = myAgent.receive(mt);
-				if (message != null){
-					try {
-						String jsonMessage = message.getContent(); // chaîne JSON
-						//TODO : to get a particular object (int : number of the Analyser sender and the Cell[]) and put it in the Map
-						
-						
-						Gson gson = new Gson();
-						Cell[] monsterPossiblePosition = (Cell[]) gson.fromJson(jsonMessage, Cell[].class);
-
-						Cell bestMove = ((ArtificialIntelligenceAgent)myAgent).chooseBestMove(cells);
-						
-						ACLMessage updatedPositionReply = message.createReply();
-						// add performative
-						updatedPositionReply.setPerformative(ACLMessage.INFORM);
-						// add new position as content in json
-						ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-						String jsonCell = ow.writeValueAsString(bestMove);
-						updatedPositionReply.setContent(jsonCell);
-						// replying with new best position
-						send(updatedPositionReply);
-						
+			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.PROPOSE).MatchConversationId(Constants.ANALYSER_AI_CONVERSATION_ID);
+			ACLMessage message = myAgent.receive(mt);
+			if (message != null && (((ArtificialIntelligenceAgent)myAgent).readyForAnalyse)){
+				try {
+					String jsonMessage = message.getContent(); // chaîne JSON
+					Gson gson = new Gson();
+					Cell[] monsterPossiblePosition = (Cell[]) gson.fromJson(jsonMessage, Cell[].class);
+					for (int i = 0; i < monsterPossiblePosition.length; i++) { // Loop through every name/phone number combo
+						predictedMonsterPositionsList.add(monsterPossiblePosition[i]);
 					}
-					catch(Exception e){e.printStackTrace();}
-				}
-				else{block();}
+					((ArtificialIntelligenceAgent)myAgent).analyseReceived +=1;
+					if (((ArtificialIntelligenceAgent)myAgent).analyseReceived >= Constants.MONSTER_NUMBER) {
+						((ArtificialIntelligenceAgent)myAgent).readyForAnalyse = false;
+						this.answerTraveler();
+						// clean all list for new analyse pattern to be able to start
+						((ArtificialIntelligenceAgent)myAgent).predictedMonsterPositionsList.clear();
+					}
+				}catch(Exception e){e.printStackTrace();}
 			}
+			else{block();}
+		}
+		
+		protected void answerTraveler() {
+			try {
+				Cell bestMove = ((ArtificialIntelligenceAgent)myAgent).chooseBestMove();
+				ACLMessage bestMoveMessage = new ACLMessage(ACLMessage.INFORM);
+				// add receiver
+				// search for Traveler agent 
+				AID TravelerAgent = Utils.searchForAgent(myAgent, Constants.TRAVELER_DESCRIPTION);
+				bestMoveMessage.addReceiver(TravelerAgent);
+				// add conversationID
+				bestMoveMessage.setConversationId(Constants.TRAVELER_AI_CONVERSATION_ID);
+				// add new best position as content in JSON
+				ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+				String jsonCell = ow.writeValueAsString(bestMove);
+				bestMoveMessage.setContent(jsonCell);
+				// replying with new best position
+				send(bestMoveMessage);	
+			} catch (JsonProcessingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}		
 		}
 	}
 	
