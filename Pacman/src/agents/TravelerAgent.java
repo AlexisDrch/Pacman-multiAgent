@@ -125,7 +125,7 @@ public class TravelerAgent extends Agent {
 		@Override
 		public void action() {
 			// should receive a message that match console jade template : INFORM and ConversationId
-			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.REQUEST).MatchConversationId(Constants.TRAVELER_AI_CONVERSATION_ID);
+			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM).MatchConversationId(Constants.TRAVELER_AI_CONVERSATION_ID);
 			ACLMessage message = myAgent.receive(mt);
 			
 			if (message != null) {
