@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.security.acl.Acl;
 import java.util.ArrayList;
 
+import org.json.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -17,6 +18,7 @@ import jade.core.behaviours.SequentialBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import models.Cell;
+import models.CellsBag;
 import models.Constants;
 import models.Utils;
 
@@ -24,7 +26,6 @@ public class AnalyserAgent extends Agent {
 	public static String ASK_ENVIRONMENT_MONSTER_POSITION_CONVID = "askEnvMonstPos";
 
 	protected int value;
-	protected Cell monsterLastPosition; 
 
 	protected void setup() {
 		Utils.register(this, this.getLocalName());
@@ -47,19 +48,24 @@ public class AnalyserAgent extends Agent {
 		return this.value;
 	}
 
-	public Cell[] getPossiblePosition(){
-		Cell[] tab = new Cell[49];
-		int index = 0;
-		int x = this.monsterLastPosition.nligne;
-		int y = this.monsterLastPosition.ncolonne;
-		for (int i= x-2; i<x+2; i++){
-			if (i<0 || i> Constants.DIM_GRID_X){i = i%(Constants.DIM_GRID_X);}
-			for (int j = y-2; j<y+2 ; j++){
-				if (j<0 || j> Constants.DIM_GRID_Y){j = j%(Constants.DIM_GRID_Y);}
-				Cell cell = new Cell(0,i,j);
-				tab[index++] = cell;  
-				System.out.println(index);
+	public Cell[] getPossiblePosition(Cell monsterLastPosition){
+
+		Cell[] tab = new Cell[16];
+		if (monsterLastPosition != null) {
+			int index = 0;
+			int x = monsterLastPosition.nligne;
+			int y = monsterLastPosition.ncolonne;
+			for (int i= x-2; i<x+2; i++){
+				i = i%Constants.DIM_GRID_X;
+				for (int j = y-2; j<y+2 ; j++){
+					j = j%Constants.DIM_GRID_Y;
+					Cell cell = new Cell(0,i,j);
+					tab[index++] = cell;  
+				}
 			}
+		} else {
+			tab = null;
+			tab = new Cell[0];
 		}
 		return tab;
 	}
@@ -114,14 +120,14 @@ public class AnalyserAgent extends Agent {
 			// should send a subscribe message to simulation Agent
 			ACLMessage subscribeMessage = new ACLMessage(ACLMessage.QUERY_REF);
 			// add conversation ID
-			subscribeMessage.setConversationId(AnalyserAgent.ASK_ENVIRONMENT_MONSTER_POSITION_CONVID+value);
+			subscribeMessage.setConversationId(Constants.ANALYSER_ENV_CONVERSATION_ID);
 			// add engine  as a receiver
 			subscribeMessage.addReceiver(environment);
 			subscribeMessage.setContent(Integer.toString(value));
 			System.out.println("AskForMonsterPosition");
 			// send message to engine
 			send(subscribeMessage);
-			//			System.out.print("\nAgent " + myAgent.getLocalName() + " has just sent a SubscribeToSimulater message to " + environment.getName());
+			// System.out.print("\nAgent " + myAgent.getLocalName() + " has just sent a SubscribeToSimulater message to " + environment.getName());
 		}	
 	}
 
@@ -130,37 +136,26 @@ public class AnalyserAgent extends Agent {
 		@Override
 		public void action() {
 			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM)
-					.MatchConversationId(AnalyserAgent.ASK_ENVIRONMENT_MONSTER_POSITION_CONVID+value);
+					.MatchConversationId(Constants.ANALYSER_ENV_CONVERSATION_ID);
 			ACLMessage message ;
 			if((message= receive(mt)) ==null)
 			{
 				block();
 				return;
 			}
-			
 			System.out.print("WaitForMonsterPositionBehaviour " );
 			System.out.println(message.getContent());
-				ObjectMapper mapper = new ObjectMapper();
-			
-			Cell monsterLastPosition;
-			try {
-				monsterLastPosition = mapper.readValue(message.getContent(), Cell.class);
-				((AnalyserAgent)myAgent).monsterLastPosition = monsterLastPosition;	
-				
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			Cell[] cellsTab = new Cell[49];
-			cellsTab = ((AnalyserAgent) myAgent).getPossiblePosition();
+			Gson gson = new Gson();
+			Cell monsterCell = gson.fromJson(message.getContent(), Cell.class);
+			// prepare possible value
+			Cell[] cellsTab = new Cell[16];
+			cellsTab = ((AnalyserAgent) myAgent).getPossiblePosition(monsterCell);
 			try {
 				ACLMessage possibleNextPosition = new ACLMessage(ACLMessage.PROPOSE);
 				possibleNextPosition.addReceiver(Utils.searchForAgent(myAgent, Constants.AI_DESCRIPTION));
-				
-				String msg_content= mapper.writeValueAsString(cellsTab);
-				System.out.println("Analyseur propose un mouv à l'AI "+msg_content);
-
-				possibleNextPosition.setContent(msg_content);
+				ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+				String jsonCellsTab = ow.writeValueAsString(cellsTab);
+				possibleNextPosition.setContent(jsonCellsTab);
 				possibleNextPosition.setConversationId(Constants.ANALYSER_AI_CONVERSATION_ID);
 				// replying with new best position
 				send(possibleNextPosition);
@@ -185,7 +180,6 @@ public class AnalyserAgent extends Agent {
 				block();
 				return;
 			}
-
 			myAgent.addBehaviour(new MySequentialBehaviour());
 
 

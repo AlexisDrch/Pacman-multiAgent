@@ -163,6 +163,24 @@ public class TravelerAgent extends Agent {
 		}
 	}
 	
+	private class WaitForEndOfGameBehaviour extends CyclicBehaviour {
+			
+			@Override
+			public void action() {
+				// should receive a message that match console jade template : INFORM
+				MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
+				ACLMessage message = myAgent.receive(mt);
+				
+				if (message != null) {
+					System.out.print("\nAgent " + myAgent.getLocalName() + " has just received message --- " + message.getContent());
+					System.out.print("\n\n --- I lost this game");
+					myAgent.doDelete();
+				} else {
+					block();
+				}
+			}
+		}
+	
 }
 		
 		

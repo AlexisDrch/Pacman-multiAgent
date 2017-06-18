@@ -170,7 +170,7 @@ public class ArtificialIntelligenceAgent extends Agent {
 				MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.REQUEST).MatchConversationId(Constants.TRAVELER_AI_CONVERSATION_ID);
 				ACLMessage message = myAgent.receive(mt);
 				
-				if (message != null && (((ArtificialIntelligenceAgent)myAgent).predictedMonsterPositionsList.size() == 0)) {
+				if (message != null && (((ArtificialIntelligenceAgent)myAgent).analyseReceived == 0)) {
 					String jsonMessage = message.getContent(); 
 					Gson gson = new Gson();
 					Cell travelerPosition = gson.fromJson(jsonMessage, Cell.class);
@@ -215,6 +215,7 @@ public class ArtificialIntelligenceAgent extends Agent {
 						this.answerTraveler();
 						// clean all list for new analyse pattern to be able to start
 						((ArtificialIntelligenceAgent)myAgent).predictedMonsterPositionsList.clear();
+						((ArtificialIntelligenceAgent)myAgent).analyseReceived =0;
 					}
 				}catch(Exception e){e.printStackTrace();}
 			}
@@ -223,7 +224,14 @@ public class ArtificialIntelligenceAgent extends Agent {
 		
 		protected void answerTraveler() {
 			try {
-				Cell bestMove = ((ArtificialIntelligenceAgent)myAgent).chooseBestMove();
+				System.out.println("SIZE OF POSSIBLE MOVE = " + predictedMonsterPositionsList.size());
+				Cell bestMove;
+				if(((ArtificialIntelligenceAgent)myAgent).predictedMonsterPositionsList.size() > 0) {
+					bestMove = ((ArtificialIntelligenceAgent)myAgent).chooseBestMove();
+				} else {
+					// if analyse failed : doesnt move yet 
+					bestMove = ((ArtificialIntelligenceAgent)myAgent).travelerPosition;
+				}
 				ACLMessage bestMoveMessage = new ACLMessage(ACLMessage.INFORM);
 				// add receiver
 				// search for Traveler agent 
