@@ -48,7 +48,7 @@ public class Engine extends Agent {
 		public MySequentialBehaviour(ArrayList agentSubscriptions) {
 			System.out.println("### Beginning the main game logic ...  ");
 			addSubBehaviour(new AcceptNewSubscriptionBehaviour(agentSubscriptions));
-			addSubBehaviour(new myTickerBehaviour(myAgent, 3000, agentSubscriptions));
+			addSubBehaviour(new myTickerBehaviour(myAgent, 1000, agentSubscriptions));
 			addBehaviour(new WaitForEndOfGameBehaviour());
 		}
 		
@@ -123,7 +123,7 @@ public class Engine extends Agent {
 		protected void onTick() {
 			int i;
 			// TODO Auto-generated method stub
-			System.out.println("\n### Tic");
+			//System.out.println("\n### Tic");
 			// search for environment 
 			AID environment = Utils.searchForAgent(myAgent, Constants.ENVIRONMENT_DESCRIPTION);
 			for(i = 0; i < Constants.MONSTER_NUMBER; i ++) {

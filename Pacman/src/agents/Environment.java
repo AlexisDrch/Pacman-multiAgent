@@ -35,6 +35,7 @@ import jade.util.leap.ArrayList;
 public class Environment extends Agent {
 	protected int nshot;
 	protected Grid myGrid;
+	public int count = 0;
 
 	protected void setup() {
 		Utils.register(this, this.getLocalName());
@@ -94,8 +95,8 @@ public class Environment extends Agent {
 				cellule = this.myGrid.grid[i][j];
 				if(cellule.isMonster() && cellule.getValue() == value_received)
 				{
-					System.out.println("Valeur à tester "+value_received);
-					System.out.println("Monstre trouvé : "+i+" "+j+ " " + this.myGrid.grid[i][j].getValue()+" \n");
+					//System.out.println("Valeur à tester "+value_received);
+					//System.out.println("Monstre trouvé : "+i+" "+j+ " " + this.myGrid.grid[i][j].getValue()+" \n");
 					return cellule;
 				}
 			}
@@ -186,6 +187,11 @@ public class Environment extends Agent {
 			ACLMessage message = myAgent.receive(m1_or_m2);
 			
 			if (message != null) {
+				((Environment)myAgent).count++;
+				if (((Environment)myAgent).count == Constants.MONSTER_NUMBER) {
+					this.superGrid.display();
+					((Environment)myAgent).count = 0;
+				}
 				String jsonMessage = message.getContent(); // chaîne JSON
 				// System.out.println(jsonMessage);
 				// parse json message with entities cellsbag
@@ -193,7 +199,7 @@ public class Environment extends Agent {
 				CellsBag cellsBag = gson.fromJson(jsonMessage, CellsBag.class);
 				//Check validity of new position
 				if (myGrid.getObtacles(cellsBag.newPosition.nligne, cellsBag.newPosition.ncolonne)) {
-					int value = 0;
+					int value = cellsBag.newPosition.getValue();
 					if (myGrid.getObtacles(cellsBag.oldPosition.nligne, cellsBag.oldPosition.ncolonne)) {
 						value = -1;
 					} 
@@ -202,6 +208,7 @@ public class Environment extends Agent {
 					((Environment)myAgent).myGrid.updateCell(dirtyCell);
 					// prevent Monster from moving : has to move in a new random one
 					ACLMessage errorReply = message.createReply();
+					errorReply.setContent("Error");
 					errorReply.setPerformative(ACLMessage.FAILURE);
 					send(errorReply);
 				} else {

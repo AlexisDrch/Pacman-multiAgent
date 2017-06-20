@@ -69,21 +69,30 @@ public class Monster extends Agent {
 	public void move() {
 		int i;
 		int j;
-		this.oldPosition = null;
-		this.oldPosition = this.position;
-		this.oldPosition.setValue(0);
-		// remember old value
-		this.oldPosition.setOldValue(this.value);
+		int ligne, colonne;
+		if (this.oldPosition == null){
+			 ligne = this.position.nligne;
+			 colonne = this.position.ncolonne;
+		} else {
+			 ligne = this.oldPosition.nligne;
+			 colonne = this.oldPosition.ncolonne;
+		}
 		if (this.fail == true) {
-			Random rand = new Random();
-			i = rand.nextInt(Constants.DIM_GRID_X - 1);
-			j = rand.nextInt(Constants.DIM_GRID_Y - 1);
+			int randomI = Utils.randomNumber();
+			int randomJ = Utils.randomNumber();
+			if(randomI == 0) {
+				randomJ = 1;
+			}
+			i = Math.floorMod(ligne + randomI , Constants.DIM_GRID_X);
+			j = Math.floorMod(colonne + randomJ,Constants.DIM_GRID_Y);
 			this.position = new Cell(this.getValue(), i, j);
 			this.fail = false;
-			
 		} else {
 			this.oldPosition = null;
 			this.oldPosition = this.position;
+			this.oldPosition.setValue(0);
+			// remember old value
+			this.oldPosition.setOldValue(this.value);
 			// erasing monster at its previous position
 			// moving to a new random position
 			int randomI = Utils.randomNumber();
@@ -95,7 +104,8 @@ public class Monster extends Agent {
 			j = Math.floorMod(this.oldPosition.ncolonne + randomJ, Constants.DIM_GRID_Y);
 			Cell newPosition = new Cell(this.getValue(), i, j);
 			this.position = newPosition;
-			//System.out.print("\nAgent " + myAgent.getLocalName() + " has just received a request to move ---> " + newPosition.nligne + "," + newPosition.ncolonne);
+
+			//System.out.print("\nAgent " + " has just received a request to move ---> " + newPosition.nligne + "," + newPosition.ncolonne);
 		}
 	}
 		
@@ -179,7 +189,11 @@ public class Monster extends Agent {
 			ACLMessage message = myAgent.receive(mt);
 			
 			if (message != null) {
-				((Monster)myAgent).fail = true;
+				if (message.getContent() == null) {
+					
+				} else {
+					((Monster)myAgent).fail = true;
+				}
 			} else {
 				block();
 			}

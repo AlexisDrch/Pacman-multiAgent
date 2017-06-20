@@ -56,36 +56,65 @@ public class ArtificialIntelligenceAgent extends Agent {
 	}
 	
 	public Cell chooseBestMove(){
-		// @Arnaud to do : passer a traver toute la liste : calculer distance euclidienne travelerPostion et cellule de liste.
-		// double boucle for imbriqué : 
-		// pour chaque position possible de traveler a comparer avec chaque cellule de predictedMonsterPositionsList
-		// conserver celle qui maximise distance et la retourner
-		Cell position = predictedMonsterPositionsList.get(0);
-		int randomI = Utils.randomNumber();
-		int randomJ = Utils.randomNumber();
-		if(randomI == 0) {
-			randomJ = 1;
+		
+		//First :trouver la position menacante la plus proche
+		
+		double bestdist =  Math.pow(predictedMonsterPositionsList.get(0).nligne - travelerPosition.nligne, 2)  +  Math.pow(predictedMonsterPositionsList.get(0).ncolonne - travelerPosition.ncolonne, 2);
+		int bestIndex  = 0;
+		for (int i = 1; i< predictedMonsterPositionsList.size();  i++){
+			// On récupère la cell 
+			Cell cell = predictedMonsterPositionsList.get(i);
+			// On calcule la distance euclidienne
+			double dist = Math.pow(cell.nligne - travelerPosition.nligne, 2)  + Math.pow(cell.ncolonne- travelerPosition.ncolonne,2);
+			if (dist < bestdist){bestdist = dist; bestIndex = i;}
 		}
-		int i = (position.nligne + randomI)%Constants.DIM_GRID_X;
-		int j = (position.ncolonne + randomJ)%Constants.DIM_GRID_Y;
-		while(positionCorrect(i, j, grid)) {
-			randomI = Utils.randomNumber();
-			randomJ = Utils.randomNumber();
-			if(randomI == 0) {
-				randomJ = 1;
-			}
-			i = (position.nligne + randomI)%Constants.DIM_GRID_X;
-			j = (position.ncolonne + randomJ)%Constants.DIM_GRID_Y;
+		// Now evaluate the best position to be far from bestdist
+		ArrayList<Cell> nextPositionTraveller = new ArrayList<>();
+		//top
+		int ligne = travelerPosition.nligne;
+		ligne = Math.floorMod(ligne-1, Constants.DIM_GRID_X);
+		Cell topPosition = new Cell (0,ligne,travelerPosition.ncolonne);
+		System.out.print("position correct ? :");
+		System.out.print(positionCorrect(topPosition.nligne, topPosition.ncolonne, grid));
+		if (positionCorrect(topPosition.nligne, topPosition.ncolonne, grid) == false){nextPositionTraveller.add(topPosition);}
+		//Bottom
+		ligne = travelerPosition.nligne;
+		ligne = Math.floorMod(ligne+1, Constants.DIM_GRID_X);
+		Cell bottomPosition = new Cell (0,ligne,travelerPosition.ncolonne);
+		if (positionCorrect(bottomPosition.nligne, bottomPosition.ncolonne, grid) == false){nextPositionTraveller.add(bottomPosition);}
+		//right
+		int colonne = travelerPosition.ncolonne;
+		colonne = Math.floorMod(colonne+1, Constants.DIM_GRID_Y);
+		Cell rightPosition = new Cell (0,travelerPosition.nligne,colonne);
+		if (positionCorrect(rightPosition.nligne, rightPosition.ncolonne, grid) == false){nextPositionTraveller.add(rightPosition);}
+		//left 
+		colonne = travelerPosition.ncolonne;
+		colonne = Math.floorMod(colonne-1, Constants.DIM_GRID_Y);
+		Cell leftPosition = new Cell (0,travelerPosition.nligne,colonne);
+		if (positionCorrect(leftPosition.nligne, leftPosition.ncolonne, grid) == false){nextPositionTraveller.add(leftPosition);}
+		
+		// Now, we choose the farest 
+		int indexToChoose = 0;
+		Cell dangerousCell = predictedMonsterPositionsList.get(bestIndex);
+		double distToChoose =  Math.pow(nextPositionTraveller.get(0).nligne - predictedMonsterPositionsList.get(bestIndex).nligne, 2) 
+				+ Math.pow(nextPositionTraveller.get(0).ncolonne - predictedMonsterPositionsList.get(bestIndex).ncolonne, 2);
+		
+		for (int k = 1; k< nextPositionTraveller.size(); k++){
+			Cell currentCell = nextPositionTraveller.get(k);
+			double dist = Math.pow(dangerousCell.nligne - currentCell.nligne, 2)
+					+ Math.pow(dangerousCell.ncolonne - currentCell.ncolonne, 2);
+			if (dist > distToChoose){distToChoose = dist;indexToChoose = k;}
 		}
-		position.nligne = i;
-		position.ncolonne = j;
-		return position;
-	}
+		
+		return nextPositionTraveller.get(indexToChoose);
+			
+		}
+		
 	
 	/**
-	 * MySequentialBehaviour construit la logique entière de cet agent.
-	 * De manière séquentiel, il attend que les analyser soient inscris.
-	 * Puis, il déclenche les Cyclicls behaviour en parallele
+	 * MySequentialBehaviour construit la logique entiÃ¨re de cet agent.
+	 * De maniÃ¨re sÃ©quentiel, il attend que les analyser soient inscris.
+	 * Puis, il dÃ©clenche les Cyclicls behaviour en parallele
 	*/
 	private class MySequentialBehaviour extends SequentialBehaviour {
 		
@@ -97,7 +126,7 @@ public class ArtificialIntelligenceAgent extends Agent {
 	}
 
 	/**
-	 * AcceptNewSubscriptionBehaviour accepte et inscrit les nouveaux agents Monster lorsqu'il est notifié
+	 * AcceptNewSubscriptionBehaviour accepte et inscrit les nouveaux agents Monster lorsqu'il est notifiÃ©
 	 * par eux. 
 	*/
 	private class AcceptNewSubscriptionBehaviour extends Behaviour {
@@ -203,7 +232,7 @@ public class ArtificialIntelligenceAgent extends Agent {
 			ACLMessage message = myAgent.receive(mt);
 			if (message != null && (((ArtificialIntelligenceAgent)myAgent).readyForAnalyse)){
 				try {
-					String jsonMessage = message.getContent(); // chaîne JSON
+					String jsonMessage = message.getContent(); // chaÃ®ne JSON
 					Gson gson = new Gson();
 					Cell[] monsterPossiblePosition = (Cell[]) gson.fromJson(jsonMessage, Cell[].class);
 					for (int i = 0; i < monsterPossiblePosition.length; i++) { // Loop through every name/phone number combo
@@ -253,6 +282,3 @@ public class ArtificialIntelligenceAgent extends Agent {
 	}
 	
 }
-		
-		
-
