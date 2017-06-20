@@ -143,8 +143,8 @@ public class AnalyserAgent extends Agent {
 				block();
 				return;
 			}
-			System.out.print("WaitForMonsterPositionBehaviour " );
-			System.out.println(message.getContent());
+			//System.out.print("WaitForMonsterPositionBehaviour " );
+			//System.out.println(message.getContent());
 			Gson gson = new Gson();
 			Cell monsterCell = gson.fromJson(message.getContent(), Cell.class);
 			// prepare possible value

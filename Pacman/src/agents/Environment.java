@@ -94,8 +94,8 @@ public class Environment extends Agent {
 				cellule = this.myGrid.grid[i][j];
 				if(cellule.isMonster() && cellule.getValue() == value_received)
 				{
-					System.out.println("Valeur à tester "+value_received);
-					System.out.println("Monstre trouvé : "+i+" "+j+ " " + this.myGrid.grid[i][j].getValue()+" \n");
+					//System.out.println("Valeur à tester "+value_received);
+					//System.out.println("Monstre trouvé : "+i+" "+j+ " " + this.myGrid.grid[i][j].getValue()+" \n");
 					return cellule;
 				}
 			}
@@ -193,7 +193,7 @@ public class Environment extends Agent {
 				CellsBag cellsBag = gson.fromJson(jsonMessage, CellsBag.class);
 				//Check validity of new position
 				if (myGrid.getObtacles(cellsBag.newPosition.nligne, cellsBag.newPosition.ncolonne)) {
-					int value = 0;
+					int value = 0 ;
 					if (myGrid.getObtacles(cellsBag.oldPosition.nligne, cellsBag.oldPosition.ncolonne)) {
 						value = -1;
 					} 
@@ -202,14 +202,20 @@ public class Environment extends Agent {
 					((Environment)myAgent).myGrid.updateCell(dirtyCell);
 					// prevent Monster from moving : has to move in a new random one
 					ACLMessage errorReply = message.createReply();
+					errorReply.setContent("Error");
 					errorReply.setPerformative(ACLMessage.FAILURE);
 					send(errorReply);
 				} else {
 					if (myGrid.getObtacles(cellsBag.oldPosition.nligne, cellsBag.oldPosition.ncolonne)) {
 						cellsBag.oldPosition.setValue(-1);
 					}
+					int value = 0;
+					Cell dirtyCell = new Cell(value,cellsBag.oldPosition.nligne, cellsBag.oldPosition.ncolonne);
+					((Environment)myAgent).myGrid.updateCell(dirtyCell);
 					((Environment)myAgent).updateMyGrid(cellsBag);
 					this.superGrid = ((Environment)myAgent).getMyGrid();
+					this.superGrid.display();
+					
 				}
 			} else {
 				block();

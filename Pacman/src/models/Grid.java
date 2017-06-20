@@ -44,7 +44,7 @@ public class Grid {
 				Cell cell = grid[i][j];
 				int value = cell.getValue();
 				if (value == -1) {
-					System.out.print("|" + "█" + "| ");
+					System.out.print("|" + "█" +  "| ");
 				} else if (value == 0) {
 					System.out.print("|" + " " + "| ");
 				} else {
