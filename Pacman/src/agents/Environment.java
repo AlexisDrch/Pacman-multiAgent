@@ -35,6 +35,7 @@ import jade.util.leap.ArrayList;
 public class Environment extends Agent {
 	protected int nshot;
 	protected Grid myGrid;
+	public int count = 0;
 
 	protected void setup() {
 		Utils.register(this, this.getLocalName());
@@ -186,6 +187,11 @@ public class Environment extends Agent {
 			ACLMessage message = myAgent.receive(m1_or_m2);
 			
 			if (message != null) {
+				((Environment)myAgent).count++;
+				if (((Environment)myAgent).count == Constants.MONSTER_NUMBER) {
+					this.superGrid.display();
+					((Environment)myAgent).count = 0;
+				}
 				String jsonMessage = message.getContent(); // chaîne JSON
 				// System.out.println(jsonMessage);
 				// parse json message with entities cellsbag
@@ -193,7 +199,7 @@ public class Environment extends Agent {
 				CellsBag cellsBag = gson.fromJson(jsonMessage, CellsBag.class);
 				//Check validity of new position
 				if (myGrid.getObtacles(cellsBag.newPosition.nligne, cellsBag.newPosition.ncolonne)) {
-					int value = 0 ;
+					int value = cellsBag.newPosition.getValue();
 					if (myGrid.getObtacles(cellsBag.oldPosition.nligne, cellsBag.oldPosition.ncolonne)) {
 						value = -1;
 					} 
@@ -209,13 +215,8 @@ public class Environment extends Agent {
 					if (myGrid.getObtacles(cellsBag.oldPosition.nligne, cellsBag.oldPosition.ncolonne)) {
 						cellsBag.oldPosition.setValue(-1);
 					}
-					int value = 0;
-					Cell dirtyCell = new Cell(value,cellsBag.oldPosition.nligne, cellsBag.oldPosition.ncolonne);
-					((Environment)myAgent).myGrid.updateCell(dirtyCell);
 					((Environment)myAgent).updateMyGrid(cellsBag);
 					this.superGrid = ((Environment)myAgent).getMyGrid();
-					this.superGrid.display();
-					
 				}
 			} else {
 				block();

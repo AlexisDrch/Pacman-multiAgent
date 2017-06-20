@@ -12,8 +12,8 @@ public class Constants {
 	public static String ANALYSER_AI_CONVERSATION_ID = "xxxx6xxxx";
 	public static String ANALYSER_ENV_CONVERSATION_ID = "xxxx7xxxx";
 	public static String TRAVELER_ENV_CONVERSATION_ID = "xxxx5xxxx";
-	public static int MONSTER_NUMBER = 1;
-	public static int TRAVELER_VALUE = 100;
+	public static int MONSTER_NUMBER = 3;
+	public static int TRAVELER_VALUE = 9;
 	public static int DIM_GRID_X = 12;
 	public static int DIM_GRID_Y = 20;
 	public static int[][] GRID_LVL1 = {

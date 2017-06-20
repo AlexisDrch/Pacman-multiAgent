@@ -48,24 +48,24 @@ public class AnalyserAgent extends Agent {
 		return this.value;
 	}
 
-	public Cell[] getPossiblePosition(Cell monsterLastPosition){
+	public ArrayList<Cell> getPossiblePosition(Cell monsterLastPosition){
 
-		Cell[] tab = new Cell[16];
+		ArrayList<Cell> tab = new ArrayList();
 		if (monsterLastPosition != null) {
-			int index = 0;
 			int x = monsterLastPosition.nligne;
 			int y = monsterLastPosition.ncolonne;
-			for (int i= x-2; i<x+2; i++){
-				i = i%Constants.DIM_GRID_X;
-				for (int j = y-2; j<y+2 ; j++){
-					j = j%Constants.DIM_GRID_Y;
-					Cell cell = new Cell(0,i,j);
-					tab[index++] = cell;  
+			int ligne, colonne;
+			int i = x-2;
+			int j = y-2;
+			for (i = x-2; i<=x+2; i++){
+				ligne = Math.floorMod(i,Constants.DIM_GRID_X);
+				for (j = y-2; j<=y+2 ; j++){
+					colonne = Math.floorMod(j,Constants.DIM_GRID_Y);
+					Cell cell = new Cell(0,ligne,colonne);
+					tab.add(cell);
+					//System.out.println(i + "," +j);
 				}
 			}
-		} else {
-			tab = null;
-			tab = new Cell[0];
 		}
 		return tab;
 	}
@@ -124,7 +124,7 @@ public class AnalyserAgent extends Agent {
 			// add engine  as a receiver
 			subscribeMessage.addReceiver(environment);
 			subscribeMessage.setContent(Integer.toString(value));
-			System.out.println("AskForMonsterPosition");
+			//System.out.println("AskForMonsterPosition");
 			// send message to engine
 			send(subscribeMessage);
 			// System.out.print("\nAgent " + myAgent.getLocalName() + " has just sent a SubscribeToSimulater message to " + environment.getName());
@@ -148,8 +148,7 @@ public class AnalyserAgent extends Agent {
 			Gson gson = new Gson();
 			Cell monsterCell = gson.fromJson(message.getContent(), Cell.class);
 			// prepare possible value
-			Cell[] cellsTab = new Cell[16];
-			cellsTab = ((AnalyserAgent) myAgent).getPossiblePosition(monsterCell);
+			ArrayList<Cell> cellsTab = ((AnalyserAgent) myAgent).getPossiblePosition(monsterCell);
 			try {
 				ACLMessage possibleNextPosition = new ACLMessage(ACLMessage.PROPOSE);
 				possibleNextPosition.addReceiver(Utils.searchForAgent(myAgent, Constants.AI_DESCRIPTION));
@@ -159,6 +158,8 @@ public class AnalyserAgent extends Agent {
 				possibleNextPosition.setConversationId(Constants.ANALYSER_AI_CONVERSATION_ID);
 				// replying with new best position
 				send(possibleNextPosition);
+				cellsTab.clear();
+				cellsTab = null;
 			} catch (JsonProcessingException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

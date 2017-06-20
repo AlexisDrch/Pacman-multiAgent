@@ -47,6 +47,8 @@ public class Grid {
 					System.out.print("|" + "█" +  "| ");
 				} else if (value == 0) {
 					System.out.print("|" + " " + "| ");
+				} else if (value==Constants.TRAVELER_VALUE) {
+					System.out.print("|" + "x" + "| ");
 				} else {
 					System.out.print("|" + value + "| ");
 				}

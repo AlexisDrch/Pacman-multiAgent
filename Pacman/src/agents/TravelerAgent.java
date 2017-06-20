@@ -48,9 +48,9 @@ public class TravelerAgent extends Agent {
 		// set value to agent
 		// setup random position in grid
 		this.oldPosition = null;
-		this.position = new Cell(this.value, Constants.DIM_GRID_X/2, Constants.DIM_GRID_Y/2);
+		this.position = new Cell(this.value, (int)Constants.DIM_GRID_X/2, (int)Constants.DIM_GRID_Y/2);
 		// add behaviours
-		addBehaviour(new RequestBestMoveBehaviour(this, 5000));
+		addBehaviour(new RequestBestMoveBehaviour(this, 2000));
 		addBehaviour(new ForwardAIinfoToEnvironmentBehaviour());
 	}
 	
